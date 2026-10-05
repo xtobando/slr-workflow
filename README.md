@@ -1,8 +1,9 @@
 # SLR OpenCode Workbench — iteration 1
 
-An English, local, editable systematic literature review project for VS Code.
+An English, local, editable systematic literature review workbench.
 OpenCode runs the LLM and loads a skill for each review stage. Python validates
 evidence, records proposals/decisions in SQLite and calculates reporting data.
+The workflow runs from a terminal, with optional VS Code editor integration.
 No OpenRouter or direct LLM API dependency is required by the Python core.
 
 This iteration is a working foundation, with synthetic fixtures to exercise the
@@ -10,9 +11,9 @@ workflow. Replace the illustrative protocol before using real research data.
 It assists a Kitchenham-style review and PRISMA reporting; it does not certify
 methodological quality or complete the PRISMA checklist automatically.
 
-## Start in VS Code
+## Setup
 
-1. Open this folder as a VS Code workspace. Install the workspace's recommended
+1. Open the project in an editor or terminal. If using VS Code, install the recommended
    extensions: Python, Pylance and
    [PDF Viewer](https://marketplace.visualstudio.com/items?itemName=mathematic.vscode-pdf)
    (`mathematic.vscode-pdf`, requires VS Code 1.95+). In Extensions, search
@@ -22,24 +23,19 @@ methodological quality or complete the PRISMA checklist automatically.
 2. Install [uv](https://docs.astral.sh/uv/getting-started/installation/) **0.12.23**.
    The project pins that tool version in `pyproject.toml`, Python **3.12.15** in
    `.python-version`, and dependency versions and hashes in `uv.lock`.
-   uv downloads the supported Python automatically; the macOS system Python 3.9
-   is not sufficient to run this project.
-3. Install the locked core, select `.venv` with **Python: Select Interpreter**,
-   activate it in the integrated terminal, and initialize:
+   uv downloads the supported Python automatically. The Python core requires
+   Python 3.11 or newer.
+3. Install the locked core and initialize:
 
 ```sh
 uv sync --locked
-# macOS/Linux
-source .venv/bin/activate
-# Windows PowerShell alternative: .venv\Scripts\Activate.ps1
-# Windows cmd alternative: .venv\Scripts\activate.bat
-slr init
+uv run --locked slr init
 ```
 
-On Windows, if PowerShell blocks activation scripts, use a cmd terminal or select
-the environment interpreter in VS Code and run the included process tasks.
-Changing the global PowerShell execution policy is unnecessary for this project.
-Alternatively, run commands through `uv run --locked slr ...` without activation.
+The `uv run --locked` prefix runs commands in the project environment without
+shell-specific activation. Examples below use `slr` directly: activate `.venv`
+for the current shell, or prefix each command with `uv run --locked`.
+In VS Code, select `.venv` with **Python: Select Interpreter** for Python tasks.
 If you already have an incompatible `.venv`, preserve anything you need from it
 before syncing: uv can recreate it using the pinned Python version.
 
@@ -55,11 +51,12 @@ installs do not reproduce the lockfile.
 5. Review both files, then approve the exact revision from your terminal:
 
 ```sh
-slr approve-protocol --reviewer thomas
+slr approve-protocol --reviewer REVIEWER_ID
 ```
 
-Use your configured identity if you replaced `thomas`. Enter an approval reason
-and explicitly confirm. Agents must hand this command to you.
+Replace `REVIEWER_ID` in all examples with an identity configured in
+`protocol.yaml`. Enter an approval reason and explicitly confirm. Agents must
+hand this command to a human reviewer.
 
 ## OpenCode and provider connections
 
@@ -69,8 +66,8 @@ configuration keys, tool actions and permission formats.
 
 ```sh
 opencode --version
-python scripts/select_opencode_config.py
-opencode
+uv run --locked python scripts/select_opencode_config.py
+uv run --locked opencode
 ```
 
 Automatic detection selects the matching major-version profile. You can select
@@ -79,8 +76,8 @@ the V2 profile. Select the version **before customizing** this file: selecting a
 profile replaces it and saves different existing content to `opencode.previous.json`.
 Global provider credentials/configuration are not modified by the selector.
 Detection accepts both bare versions such as `1.3.0` and prefixed output such as
-`opencode v2.0.23`. The selector and V2 project configuration were verified locally
-with OpenCode 2.0.23 on macOS; see [validation details](docs/testing.md).
+`opencode v2.0.23`. See [validation details](docs/testing.md) for compatibility
+checks and their limits.
 
 Inside OpenCode:
 
@@ -95,14 +92,10 @@ Inside OpenCode:
 No model is hard-coded. Skills and commands inherit your selected model. You can
 set a model per agent or slash command using your OpenCode version's syntax.
 
-Account support is not identical across providers. As checked on 2026-10-05:
-
-| Provider | Setup supported by the referenced documentation |
-| --- | --- |
-| ChatGPT Plus/Pro | OpenCode documents OpenAI login using the ChatGPT Plus/Pro option. Availability/quota depend on your account and installed version. |
-| Claude | Use the Anthropic API connection in OpenCode. The current V1 provider guide says Claude subscription auth plugins stopped being bundled as of 1.3.0 and are prohibited by Anthropic; this project does not promise Claude Pro/Max subscription login. |
-| Gemini | Use a Gemini API key or the documented Vertex AI connection. Google says consumer Code Assist/Gemini CLI Login with Google access ended on June 18, 2026; the old consumer OAuth plugin is not a reliable route for Google AI Pro/Ultra subscriptions. |
-| Other/local providers | Choose any usable OpenCode provider. Review your version's connection methods and model capabilities. |
+Choose an available hosted or local provider through OpenCode. Authentication
+methods, model availability and quotas depend on the provider and installed
+OpenCode version. No particular provider, subscription or account is required
+by the Python core.
 
 See [provider setup](docs/providers.md) for sources and version caveats. This
 project does not implement OAuth, copy browser cookies or reuse another CLI's
@@ -148,10 +141,10 @@ records. A different result set with the same ID is rejected.
 
 Ask `/slr-screen <record-id>` to obtain a packet, write a JSON draft and call
 `slr submit`. The agent should give you the returned proposal ID. In a **separate**
-VS Code terminal, review its evidence and decision:
+terminal, review its evidence and decision:
 
 ```sh
-slr review <proposal-id> --reviewer thomas
+slr review <proposal-id> --reviewer REVIEWER_ID
 ```
 
 You can accept, modify or defer. To edit extracted values/evidence, save a revised
@@ -171,7 +164,7 @@ a draft requiring the same human review command. Link the publication to an
 underlying study after confirming the relationship:
 
 ```sh
-slr link-study <report-id> demo-study-001 --label "Synthetic demonstration study" --reviewer thomas
+slr link-study <report-id> demo-study-001 --label "Synthetic demonstration study" --reviewer REVIEWER_ID
 slr report
 slr audit
 slr search-corpus "synthetic dataset"
@@ -184,7 +177,7 @@ Once full text is attached, `sought` and `not_retrieved` updates are rejected so
 reporting and corpus retrieval continue to agree.
 
 To correct a study relationship, use `slr unlink-study <report-id> <study-id>
---reviewer thomas --reason "Correction justification"` in your terminal. The
+--reviewer REVIEWER_ID --reason "Correction justification"` in your terminal. The
 original relationship and correction remain in the audit trail.
 
 ## Optional document and semantic retrieval adapters
@@ -243,9 +236,10 @@ important quotes, tables and formulas against the original PDF.
 | `docs/` | Architecture, customization, evidence contracts and reporting coverage |
 | `data/` | Local review database, originals, drafts, derived text and exports; created at runtime |
 
-Use **Tasks: Run Task** in VS Code for setup, initialization, human review, status,
-export, audit and tests. OpenCode must inherit the activated environment for the
-`slr` executable to be available. Python process tasks use the selected interpreter.
+VS Code users can use **Tasks: Run Task** for setup, initialization, human review,
+status, export, audit and tests. Launch OpenCode through `uv run --locked opencode`
+or from an activated environment so it can find `slr`. Python process tasks use
+the selected interpreter.
 
 ## What is implemented and what remains
 
@@ -255,10 +249,9 @@ updated-review carried-over-study handling and statistical meta-analysis remain
 future iterations. Skill instructions identify these boundaries explicitly.
 
 The included Docling/Chroma adapters have not been exercised against downloaded
-models in this build. OpenCode configuration/skill files have been checked against
-official V1/V2 documentation and local structural validation. OpenCode 2.0.23
-also successfully loaded the project configuration and discovered the SLR agent
-locally. Provider login and model execution require your machine/account.
+models in this build. Configuration, skill and command validation is separate
+from provider authentication and model execution. Validate those integrations
+in the intended deployment environment before relying on them for a review.
 
 For developer validation:
 
