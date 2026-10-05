@@ -1,0 +1,42 @@
+name: Core checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.os }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15, windows-2022]
+        python: ["3.11", "3.12.15"]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+      - name: Install locked core and development dependencies
+        run: uv sync --locked --extra dev
+      - name: Validate project configuration
+        run: uv run --locked --extra dev python scripts/validate_project.py
+      - name: Lint
+        run: uv run --locked --extra dev ruff check src scripts tests
+      - name: Test isolated synthetic workflows
+        run: uv run --locked --extra dev pytest -q
+      - name: Check CLI entry point
+        run: uv run --locked --extra dev slr --help
+      - name: Build source and wheel distributions
+        run: uv build
+      - name: Verify packaged migrations
+        run: uv run --locked --extra dev python scripts/validate_distribution.py

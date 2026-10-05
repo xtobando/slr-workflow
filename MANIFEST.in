@@ -1,0 +1,13 @@
+include AGENTS.md README.md .python-version uv.lock .gitignore .gitattributes
+include protocol.yaml workflow.yaml conversion.yaml rag.yaml opencode.json
+include requirements*.txt
+recursive-include config *.json
+recursive-include docs *.md
+recursive-include examples *.json *.md
+recursive-include schemas *.json
+recursive-include scripts *.py
+recursive-include tests *.py
+recursive-include .opencode *.md
+recursive-include .vscode *.json
+recursive-include .github *.yml
+global-exclude *.py[cod] .DS_Store

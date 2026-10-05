@@ -12,24 +12,41 @@ methodological quality or complete the PRISMA checklist automatically.
 
 ## Start in VS Code
 
-1. Open this folder as a VS Code workspace.
-2. Use Python 3.11 or newer. Create a virtual environment and select its interpreter
-   with **Python: Select Interpreter**. Activate it in the integrated terminal.
-3. Install the core, then initialize:
+1. Open this folder as a VS Code workspace. Install the workspace's recommended
+   extensions: Python, Pylance and
+   [PDF Viewer](https://marketplace.visualstudio.com/items?itemName=mathematic.vscode-pdf)
+   (`mathematic.vscode-pdf`, requires VS Code 1.95+). In Extensions, search
+   `@recommended` to find the workspace recommendations. The PDF viewer lets you
+   open archived papers directly in VS Code; it is installed separately from
+   Python dependencies and does not convert documents for the workflow.
+2. Install [uv](https://docs.astral.sh/uv/getting-started/installation/) **0.12.23**.
+   The project pins that tool version in `pyproject.toml`, Python **3.12.15** in
+   `.python-version`, and dependency versions and hashes in `uv.lock`.
+   uv downloads the supported Python automatically; the macOS system Python 3.9
+   is not sufficient to run this project.
+3. Install the locked core, select `.venv` with **Python: Select Interpreter**,
+   activate it in the integrated terminal, and initialize:
 
 ```sh
-python -m venv .venv
+uv sync --locked
 # macOS/Linux
 source .venv/bin/activate
 # Windows PowerShell alternative: .venv\Scripts\Activate.ps1
 # Windows cmd alternative: .venv\Scripts\activate.bat
-python -m pip install -r requirements.txt
 slr init
 ```
 
 On Windows, if PowerShell blocks activation scripts, use a cmd terminal or select
 the environment interpreter in VS Code and run the included process tasks.
 Changing the global PowerShell execution policy is unnecessary for this project.
+Alternatively, run commands through `uv run --locked slr ...` without activation.
+If you already have an incompatible `.venv`, preserve anything you need from it
+before syncing: uv can recreate it using the pinned Python version.
+
+For development, use `uv sync --locked --extra dev` and retain `--extra dev` on
+`uv run` commands so the test tools stay installed. The legacy `requirements*.txt`
+files remain available for pip users with Python 3.11+, but those range-based
+installs do not reproduce the lockfile.
 
 4. Edit `protocol.yaml`: review topic, criteria, sources, reviewer identities,
    quality checklist, extraction variables and synthesis plan. Edit `workflow.yaml`
@@ -61,6 +78,9 @@ explicitly with `--major 1` or `--major 2`. The supplied root `opencode.json` is
 the V2 profile. Select the version **before customizing** this file: selecting a
 profile replaces it and saves different existing content to `opencode.previous.json`.
 Global provider credentials/configuration are not modified by the selector.
+Detection accepts both bare versions such as `1.3.0` and prefixed output such as
+`opencode v2.0.23`. The selector and V2 project configuration were verified locally
+with OpenCode 2.0.23 on macOS; see [validation details](docs/testing.md).
 
 Inside OpenCode:
 
@@ -160,6 +180,8 @@ slr search-corpus "synthetic dataset"
 Missing full text is recorded with `slr retrieval ... not_retrieved`; it is not
 treated as eligibility exclusion. The count JSON exposes pending and unclear
 work rather than counting it as excluded.
+Once full text is attached, `sought` and `not_retrieved` updates are rejected so
+reporting and corpus retrieval continue to agree.
 
 To correct a study relationship, use `slr unlink-study <report-id> <study-id>
 --reviewer thomas --reason "Correction justification"` in your terminal. The
@@ -167,11 +189,16 @@ original relationship and correction remain in the audit trail.
 
 ## Optional document and semantic retrieval adapters
 
+Full-text review works with extracted text: manually prepared Markdown or the
+Markdown and structured JSON produced by Docling. Attaching a PDF alone archives
+its original bytes; it does not extract readable text. The PDF viewer is for your
+visual inspection, while conversion supplies text and anchors to evidence packets.
+
 ```sh
-python -m pip install -r requirements-documents.txt
+uv sync --locked --extra documents
 slr convert <report-id> <paper.pdf>
 
-python -m pip install -r requirements-rag.txt
+uv sync --locked --extra rag
 slr index-corpus
 slr retrieve "What evaluation methods were used?"
 ```
@@ -182,6 +209,22 @@ Markdown. Equations/tables still need human verification. Configure embeddings
 and character-window chunking in `rag.yaml`, and Docling options in `conversion.yaml`; evaluate retrieval before relying
 on it. Chroma indexes are disposable, corpus/configuration-fingerprinted caches.
 OpenCode generates the conversational answer from retrieved evidence.
+To keep both adapters installed, pass both `--extra documents --extra rag` when
+syncing; add `--extra dev` to retain development tools. Locking their dependencies
+does not establish runtime compatibility or pin externally downloaded model weights.
+
+You can also attach Markdown prepared outside Docling:
+
+```sh
+slr attach REPORT_ID /path/to/paper.md --kind markdown
+```
+
+Replace `REPORT_ID` with the paper's actual report ID from `slr records`. Keep the
+original PDF attached as well. Markdown can retain verified physical PDF page
+boundaries with markers such as `<!-- page: 1 -->`; do not invent page numbers.
+Docling's structured representation retains element/page information where
+available, and semantic indexing prefers it over plain Markdown. Always verify
+important quotes, tables and formulas against the original PDF.
 
 ## Project map
 
@@ -195,6 +238,7 @@ OpenCode generates the conversational answer from retrieved evidence.
 | `src/slr_workbench/migrations/` | Versioned SQLite schema |
 | `schemas/` | Generated Pydantic contracts |
 | `scripts/` | Initialization, profile selection and project validation |
+| `uv.lock`, `.python-version`, `.github/workflows/ci.yml` | Locked dependencies, default Python and automated core checks |
 | `tests/`, `examples/` | Meaningful invariants and synthetic fixtures |
 | `docs/` | Architecture, customization, evidence contracts and reporting coverage |
 | `data/` | Local review database, originals, drafts, derived text and exports; created at runtime |
@@ -212,15 +256,21 @@ future iterations. Skill instructions identify these boundaries explicitly.
 
 The included Docling/Chroma adapters have not been exercised against downloaded
 models in this build. OpenCode configuration/skill files have been checked against
-official V1/V2 documentation and local structural validation; real provider login
-and an authenticated OpenCode session require your machine/account.
+official V1/V2 documentation and local structural validation. OpenCode 2.0.23
+also successfully loaded the project configuration and discovered the SLR agent
+locally. Provider login and model execution require your machine/account.
 
 For developer validation:
 
 ```sh
-python -m pip install -r requirements-dev.txt
-python scripts/validate_project.py
-python -m pytest -q
+uv sync --locked --extra dev
+uv run --locked --extra dev python scripts/validate_project.py
+uv run --locked --extra dev ruff check src scripts tests
+uv run --locked --extra dev pytest -q
+uv build
+uv run --locked --extra dev python scripts/validate_distribution.py
 ```
 
 See `docs/testing.md` for the executed checks and their limits.
+See [reproducibility and GitHub setup](docs/reproducibility.md) for fresh-clone
+instructions, dependency updates and publishing this repository.

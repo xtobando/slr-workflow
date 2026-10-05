@@ -19,6 +19,8 @@ rationale. Optional fields: criteria, evidence, values, provenance.
 - element_id identifies a preserved element. Both page and element may be supplied.
 - The validator checks quotes at the claimed anchor after whitespace/NFKC
   normalization. It does not validate paraphrases or scientific entailment.
+- Quotes must contain non-whitespace text after normalization, including when
+  the source is an attached PDF without extracted text.
 - Full-text screening, quality and extraction use document evidence.
 - Tables represented in Docling JSON retain structured export and anchors;
   important values must still be checked in the original PDF.
@@ -45,6 +47,8 @@ the reviewer should inspect the relevant full text.
 Protocol extraction types are text, number, integer, boolean and list. Variable
 IDs, definitions, required flags, allowed choices and research-question mappings
 are user-defined. Quality drafts use all configured checklist IDs and answers.
+For list variables with configured choices, every list member must be an allowed
+choice. For scalar variables, the value itself must be an allowed choice.
 Quote `yes`/`no` in YAML to prevent their interpretation as booleans by PyYAML.
 
 ## Proposals and decisions
@@ -70,4 +74,3 @@ Record wrapper, provider, model, session_id and prompt_sha256 when known. Use nu
 for unavailable fields and describe limitations in notes. The service hashes the
 actual skill file at submission. OpenCode does not automatically fill all audit
 metadata for this project; the agent/user must report available identifiers.
-

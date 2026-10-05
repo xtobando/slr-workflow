@@ -2,15 +2,12 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "SLR: Install core",
+      "label": "SLR: Install locked core",
       "type": "process",
-      "command": "${command:python.interpreterPath}",
+      "command": "uv",
       "args": [
-        "-m",
-        "pip",
-        "install",
-        "-r",
-        "requirements.txt"
+        "sync",
+        "--locked"
       ],
       "options": {
         "cwd": "${workspaceFolder}"

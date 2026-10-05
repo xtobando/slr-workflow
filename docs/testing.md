@@ -1,19 +1,43 @@
 # Validation record — iteration 1
 
-Executed on 2026-10-05 in a fresh Python 3.12.14 virtual environment on Linux.
+## Current regression validation
+
+Validated on 2026-10-05 on macOS arm64 with Python 3.12.15 and uv 0.12.23,
+using the committed dependency lockfile in a separate `.venv-review` environment.
+The existing `.venv` used Python 3.9.6 and was left intact.
+All **38 tests pass** on Python **3.12.15** and **3.11.17** on macOS arm64.
+Ruff and project validation pass. Both source and wheel distributions build,
+and their packaged migrations match the source. A fresh extraction of the source
+archive installs offline from the populated uv cache, passes all 38 tests, and
+successfully runs `slr init`, `slr audit`, `slr status` and `slr report` against a
+temporary empty project, without approving its protocol.
+Regression coverage includes
+whitespace-only evidence against abstracts, Markdown and unconverted PDFs;
+retrieval attempts before attachment and rejected regressions after attachment;
+and allowed/disallowed members of configured list variables.
+
+The GitHub workflow adds Python 3.11/3.12 checks on Linux, macOS and Windows.
+Those hosted runs remain pending until the repository is pushed. Optional
+document/vector adapters and provider login have not been runtime-tested here.
+
+## Original build record
+
+The original build recorded validation on 2026-10-05 with Python 3.12.14 on Linux.
 The supported Python floor is 3.11; Windows, macOS and Python 3.11 have not been
 exercised in this build.
 
 ## Reproduce the core checks
 
 ```sh
-python -m pip install -r requirements-dev.txt
-python scripts/validate_project.py
-python -m ruff check src scripts tests
-python -m pytest -q
+uv sync --locked --extra dev
+uv run --locked --extra dev python scripts/validate_project.py
+uv run --locked --extra dev ruff check src scripts tests
+uv run --locked --extra dev pytest -q
+uv build
+uv run --locked --extra dev python scripts/validate_distribution.py
 ```
 
-All **21 tests passed**. Ruff reported no remaining errors. Project validation
+In the original build, all **21 tests passed**. Ruff reported no remaining errors. Project validation
 checked the 12 workflow stages, matching skill/command files, portable skill
 metadata, acyclic prerequisites and the OpenCode/VS Code JSON files.
 The Pydantic draft schema was regenerated successfully and the installed `slr`
@@ -69,16 +93,33 @@ review's evidence base.
 | pytest | 9.1.1 |
 | Ruff | 0.16.10 |
 
-The requirements define compatible version ranges rather than a cross-platform
-lock file. For a real review, freeze the environment you actually use and retain
-it with your protocol, project commit and export manifests.
+The table describes the original build, not every package in the current lockfile.
+`uv.lock` now pins cross-platform dependency resolutions; `.python-version` pins
+the default interpreter. The legacy pip requirements still use compatible ranges.
+For a real review, retain the lockfile and actual runtime details with your protocol,
+project commit and export manifests.
 
 ## Checks that remain on your machine
 
-OpenCode is not installed in this build environment. Its V1/V2 profiles and
-skills were prepared from official documentation and structurally checked, but
-live OpenCode loading, provider authentication, account quotas and VS Code UI
-behavior still require a local smoke test.
+The original build did not have OpenCode installed. A subsequent compatibility
+check on 2026-10-05 used the installed OpenCode **2.0.23** on macOS:
+
+- `opencode --version` returned `opencode v2.0.23`. The selector's original regex
+  rejected the `v` prefix; detection now handles bare and prefixed versions,
+  prerelease/build suffixes, ANSI colors and version output on stderr.
+- `python scripts/select_opencode_config.py` successfully selected V2.
+- `opencode debug config` loaded the project `opencode.json` and discovered
+  the `.opencode` directory.
+- `opencode debug agents` recognized `slr` with `mode: primary`.
+- All **56 tests passed** on Python 3.12.15, including 18 selector tests for
+  version parsing, command failures, unknown versions and profile backup behavior.
+  Ruff and the 12-stage project/skill/command validation also passed.
+
+The profile fields match the official [V2 agent configuration](https://opencode.ai/v2/docs/agents)
+and [permission rules](https://opencode.ai/v2/docs/permissions).
+V1 runtime loading, interactive skill execution, provider authentication, account
+quotas and VS Code UI behavior remain unverified. No model request or scientific
+approval was made as part of these compatibility diagnostics.
 
 Docling, Chroma and SentenceTransformers are optional, lazy-loaded adapters.
 They have not been installed or run against downloaded models here. Validate

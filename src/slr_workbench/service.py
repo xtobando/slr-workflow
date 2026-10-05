@@ -390,6 +390,8 @@ class ReviewService:
             else:
                 candidates = [row["text_content"] or ""]
         quote = normalized_text(evidence.quote)
+        if not quote:
+            raise ValueError("Evidence quote must contain non-whitespace text")
         if not any(quote in normalized_text(text) for text in candidates):
             raise ValueError("Evidence quote was not found at the claimed source/anchor")
 
@@ -452,8 +454,10 @@ class ReviewService:
                     raise TypeError(f"Wrong value type for {key}")
                 if definition.type in ("number", "integer") and isinstance(value, bool):
                     raise ValueError(f"Boolean is not a numerical result: {key}")
-                if definition.choices and value not in definition.choices:
-                    raise ValueError(f"Value is outside configured choices: {key}")
+                if definition.choices:
+                    selected = value if definition.type == "list" else [value]
+                    if any(item not in definition.choices for item in selected):
+                        raise ValueError(f"Value is outside configured choices: {key}")
         elif draft.stage == self.config.workflow.roles.quality:
             definitions = {q.id: q for q in self.config.protocol.quality}
             if set(draft.values) != definitions.keys():
@@ -666,13 +670,12 @@ class ReviewService:
             if not self.entity_exists(connection, "report", report_id):
                 raise ValueError("Unknown publication ID")
             if (
-                status == "not_retrieved"
-                and connection.execute(
+                connection.execute(
                     "SELECT 1 FROM documents WHERE report_id=?", (report_id,)
                 ).fetchone()
             ):
                 raise ValueError(
-                    "A publication with attached full text cannot be marked not retrieved"
+                    "A publication with attached full text cannot be marked sought or not retrieved"
                 )
             Database.event(
                 connection,
