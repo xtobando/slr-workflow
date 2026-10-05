@@ -78,9 +78,17 @@ human workflow before using its exports.
 
 ## Upload the repository
 
-Create an empty GitHub repository under your account with your chosen visibility.
-This checkout has no GitHub remote configured. From the project root, review and
-commit the source before connecting it to your repository:
+The project repository is [xtobando/slr-workflow](https://github.com/xtobando/slr-workflow).
+To obtain a fresh checkout:
+
+```sh
+git clone https://github.com/xtobando/slr-workflow.git
+cd slr-workflow
+```
+
+To publish a separate copy, create an empty GitHub repository under your account
+with your chosen visibility. From your project root, review and commit the source
+before connecting it to your repository:
 
 ```sh
 git status --short
@@ -92,12 +100,14 @@ git remote add origin https://github.com/YOUR-ACCOUNT/YOUR-REPOSITORY.git
 git push -u origin HEAD
 ```
 
-Replace the account and repository placeholders. The workflow runs automatically
+Replace the account and repository placeholders. If `origin` already exists, use
+your existing remote or add the new destination under a different remote name.
+The workflow runs automatically
 after pushing. No GitHub token belongs in a project file or remote URL; use your
 normal Git credential manager or GitHub CLI authentication.
 
 `.gitignore` excludes local environments, `.env` files, review data, SQLite
 databases, generated packages and caches. It cannot remove files already tracked
 by Git: inspect the staged paths before committing. Only synthetic examples
-belong in the public starter repository. A source license has not been selected;
-the owner should choose one before offering the project for third-party reuse.
+belong in the public starter repository. The project uses the [MIT License](../LICENSE),
+preserved from the GitHub repository's initial commit.
