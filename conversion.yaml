@@ -1,0 +1,6 @@
+# Passed to Docling PdfPipelineOptions. Add supported options for your installed version.
+# Enable OCR for scans; disable it when testing high-quality native text extraction.
+pipeline:
+  do_ocr: true
+  do_table_structure: true
+  do_formula_enrichment: false

@@ -1,0 +1,6 @@
+# Optional local Chroma adapter. This model is an explicit baseline, not a scientific recommendation.
+embedding_model: sentence-transformers/all-MiniLM-L6-v2
+chunk_characters: 2000
+overlap_characters: 200
+persist_directory: data/chroma
+

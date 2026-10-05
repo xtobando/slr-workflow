@@ -1,0 +1,96 @@
+# Illustrative protocol. Replace this research topic before conducting your review.
+# Editing this file or workflow.yaml creates a new revision requiring human approval.
+schema_version: 1
+review_id: example-llm-software-testing
+title: Evaluation of large language models for software testing
+rationale: >-
+  Illustrate an editable Kitchenham-style protocol. This is a starter example,
+  not an approved or publication-ready review protocol.
+questions:
+  - id: RQ1
+    text: How are large language model approaches evaluated for software testing?
+  - id: RQ2
+    text: What methodological limitations affect the interpretation of their results?
+search_start: 2020-01-01
+search_end: 2026-10-05
+sources:
+  - id: demo-database
+    name: Synthetic demonstration database
+    category: database
+    planned_queries:
+      - '"large language model" AND "software testing"'
+    limits:
+      languages: [English]
+      publication_years: [2020, 2026]
+  - id: citation-search
+    name: Backward and forward citation searching
+    category: other
+    planned_queries: []
+    limits: {}
+eligibility:
+  - id: IC1
+    kind: inclusion
+    description: The study evaluates a large language model approach for software testing.
+    stages: [title_abstract, full_text]
+  - id: IC2
+    kind: inclusion
+    description: The report presents primary empirical research with identifiable evaluation methods.
+    stages: [full_text]
+  - id: EC1
+    kind: exclusion
+    description: The report is unrelated to software testing.
+    stages: [title_abstract, full_text]
+  - id: EC2
+    kind: exclusion
+    description: The report contains no primary empirical evaluation.
+    stages: [full_text]
+reviewers:
+  identities: [thomas]
+  minimum_per_decision: 1
+  independent: false
+  disagreement_procedure: >-
+    Record independent judgments before showing other recommendations when required.
+    If reviewers disagree, discuss the evidence and record explicit adjudication.
+    One human plus an LLM is not two independent human reviewers.
+quality:
+  - id: Q1
+    question: Are the evaluation dataset and experimental procedure described?
+    answers: ['yes', partly, 'no', unclear, not_applicable]
+  - id: Q2
+    question: Are threats to validity and limitations discussed?
+    answers: ['yes', partly, 'no', unclear, not_applicable]
+extraction:
+  - id: methodology
+    description: Study design, datasets, baselines, partitioning and evaluation procedure.
+    type: text
+    required: true
+    research_questions: [RQ1]
+  - id: algorithms
+    description: Models, algorithms and their role in the tested system.
+    type: list
+    required: true
+    research_questions: [RQ1]
+  - id: metrics
+    description: Metrics and results together with datasets, units and experimental conditions.
+    type: text
+    required: true
+    research_questions: [RQ1]
+  - id: limitations
+    description: Author-reported methodological limitations and threats to validity.
+    type: text
+    required: true
+    research_questions: [RQ2]
+synthesis:
+  method: narrative
+  grouping: [methodology, algorithms]
+  missing_data: Keep missingness explicit; never substitute inferred numerical results.
+  comparability: Do not pool metrics from different datasets or evaluation conditions without justification.
+  quality_use: Describe checklist results by domain; no automatic quality-score exclusion.
+  protocol_evaluation: Pilot criteria and extraction forms on representative studies before full screening.
+paths:
+  database: data/slr.sqlite
+  artifacts: data/artifacts
+  exports: data/exports
+extensions:
+  registration: Not registered; replace with registration/access details if applicable.
+  protocol_amendments: Record reason and review stage whenever approving a revised configuration.

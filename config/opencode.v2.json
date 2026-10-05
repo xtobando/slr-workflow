@@ -1,0 +1,168 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "slr",
+  "agents": {
+    "slr": {
+      "description": "Evidence-grounded SLR coordinator",
+      "mode": "primary",
+      "system": "Coordinate the systematic review using project-local slr skills. Read AGENTS.md, protocol.yaml and workflow.yaml. Submit evidence-backed drafts through the Python CLI. Hand all human decision commands to the user. Inherit the currently selected provider/model."
+    }
+  },
+  "permissions": [
+    {
+      "action": "*",
+      "resource": "*",
+      "effect": "ask"
+    },
+    {
+      "action": "read",
+      "resource": "*",
+      "effect": "allow"
+    },
+    {
+      "action": "glob",
+      "resource": "*",
+      "effect": "allow"
+    },
+    {
+      "action": "grep",
+      "resource": "*",
+      "effect": "allow"
+    },
+    {
+      "action": "skill",
+      "resource": "slr-*",
+      "effect": "allow"
+    },
+    {
+      "action": "edit",
+      "resource": "data/drafts/*",
+      "effect": "allow"
+    },
+    {
+      "action": "edit",
+      "resource": "data/synthesis/*",
+      "effect": "allow"
+    },
+    {
+      "action": "edit",
+      "resource": "data/*.sqlite*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "slr init*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "slr workflow*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "slr records*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "slr status*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "slr packet*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "slr proposal*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "slr submit*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "slr deduplicate*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "slr attach*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "slr report*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "slr audit*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "slr search-corpus*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "slr schema*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "slr approve-protocol*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "slr review*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "slr retrieval*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "slr link-study*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "python* -m slr_workbench*approve-protocol*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "python* -m slr_workbench*review*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "python* -m slr_workbench*retrieval*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "python* -m slr_workbench*link-study*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "slr unlink-study*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "python* -m slr_workbench*unlink-study*",
+      "effect": "deny"
+    }
+  ]
+}

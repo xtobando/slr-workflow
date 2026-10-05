@@ -1,0 +1,17 @@
+{
+  "python.analysis.extraPaths": [
+    "./src"
+  ],
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": [
+    "tests"
+  ],
+  "editor.formatOnSave": true,
+  "files.exclude": {
+    "**/__pycache__": true
+  },
+  "search.exclude": {
+    "data/**": true,
+    ".venv/**": true
+  }
+}

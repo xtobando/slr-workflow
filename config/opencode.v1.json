@@ -1,0 +1,53 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "slr",
+  "share": "disabled",
+  "agent": {
+    "slr": {
+      "description": "Evidence-grounded SLR coordinator",
+      "mode": "primary",
+      "prompt": "Coordinate the systematic review using project-local slr skills. Read AGENTS.md, protocol.yaml and workflow.yaml. Submit evidence-backed drafts through the Python CLI. Hand all human decision commands to the user. Inherit the currently selected provider/model."
+    }
+  },
+  "permission": {
+    "*": "ask",
+    "read": "allow",
+    "glob": "allow",
+    "grep": "allow",
+    "skill": {
+      "slr-*": "allow"
+    },
+    "edit": {
+      "*": "ask",
+      "data/drafts/*": "allow",
+      "data/synthesis/*": "allow",
+      "data/*.sqlite*": "deny"
+    },
+    "bash": {
+      "*": "ask",
+      "slr init*": "allow",
+      "slr workflow*": "allow",
+      "slr records*": "allow",
+      "slr status*": "allow",
+      "slr packet*": "allow",
+      "slr proposal*": "allow",
+      "slr submit*": "allow",
+      "slr deduplicate*": "allow",
+      "slr attach*": "allow",
+      "slr report*": "allow",
+      "slr audit*": "allow",
+      "slr search-corpus*": "allow",
+      "slr schema*": "allow",
+      "slr approve-protocol*": "deny",
+      "slr review*": "deny",
+      "slr retrieval*": "deny",
+      "slr link-study*": "deny",
+      "python* -m slr_workbench*approve-protocol*": "deny",
+      "python* -m slr_workbench*review*": "deny",
+      "python* -m slr_workbench*retrieval*": "deny",
+      "python* -m slr_workbench*link-study*": "deny",
+      "slr unlink-study*": "deny",
+      "python* -m slr_workbench*unlink-study*": "deny"
+    }
+  }
+}

@@ -1,0 +1,79 @@
+# Order, labels, skill names, stage IDs, prerequisites and extra metadata are editable.
+# The roles map identifies semantic milestones used by validators and PRISMA projections.
+schema_version: 1
+roles:
+  record_screening: title_abstract
+  report_screening: full_text
+  quality: quality
+  extraction: extraction
+stages:
+  - id: protocol
+    name: Design and evaluate the protocol
+    skill: slr-protocol
+    entity: review
+    choices: [approved, revise, unclear]
+    extensions: {gate: protocol_approval}
+  - id: search
+    name: Plan searches and import recorded results
+    skill: slr-search
+    entity: review
+    choices: [complete, revise, unclear]
+  - id: deduplication
+    name: Identify duplicate bibliographic records
+    skill: slr-deduplicate
+    entity: review
+    choices: [complete, revise, unclear]
+  - id: title_abstract
+    name: Screen titles and abstracts
+    skill: slr-screen
+    entity: record
+    choices: [include, exclude, unclear]
+    requires: [protocol]
+  - id: retrieval
+    name: Retrieve and process full texts
+    skill: slr-retrieve
+    entity: report
+    choices: [complete, revise, unclear]
+    requires: [title_abstract]
+  - id: full_text
+    name: Evaluate full-text eligibility
+    skill: slr-full-text
+    entity: report
+    choices: [include, exclude, unclear]
+    requires: [title_abstract]
+  - id: quality
+    name: Assess methodological quality
+    skill: slr-quality
+    entity: report
+    choices: [approved, revise, unclear]
+    requires: [full_text]
+  - id: extraction
+    name: Extract evidence-backed variables
+    skill: slr-extract
+    entity: report
+    choices: [approved, revise, unclear]
+    requires: [full_text, quality]
+  - id: corpus
+    name: Index and query included evidence
+    skill: slr-corpus
+    entity: review
+    choices: [complete, revise, unclear]
+  - id: synthesis
+    name: Synthesize approved results
+    skill: slr-synthesize
+    entity: review
+    choices: [approved, revise, unclear]
+  - id: report
+    name: Export count data and document PRISMA checklist coverage
+    skill: slr-report
+    entity: review
+    choices: [complete, revise, unclear]
+  - id: audit
+    name: Audit history, evidence and reporting
+    skill: slr-audit
+    entity: review
+    choices: [complete, revise, unclear]
+extensions:
+  human_decision_policy: Agents submit drafts; interactive human commands record decisions.
+  custom_stages: Add a stage and skill, then extend validators/resolvers if it introduces a new semantic role.
+

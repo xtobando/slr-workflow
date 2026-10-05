@@ -1,0 +1,27 @@
+[
+  {
+    "source_record_id": "synthetic-001",
+    "title": "SYNTHETIC DEMO: LLM-based software test generation",
+    "abstract": "This synthetic demonstration evaluates an LLM for software test generation. It describes a dataset and an experimental procedure.",
+    "doi": "10.99999/slr-demo-001",
+    "year": 2025,
+    "authors": ["Synthetic Example Author"],
+    "metadata": {"synthetic": true, "warning": "Not a real publication; never cite this fixture"}
+  },
+  {
+    "source_record_id": "synthetic-001-copy",
+    "title": "SYNTHETIC DEMO: LLM-based software test generation",
+    "abstract": "This synthetic demonstration evaluates an LLM for software test generation. It describes a dataset and an experimental procedure.",
+    "doi": "https://doi.org/10.99999/SLR-DEMO-001",
+    "year": 2025,
+    "metadata": {"synthetic": true}
+  },
+  {
+    "source_record_id": "synthetic-002",
+    "title": "SYNTHETIC DEMO: Numerical simulation of ocean currents",
+    "abstract": "This synthetic demonstration concerns ocean currents and contains no software testing evaluation.",
+    "doi": "10.99999/slr-demo-002",
+    "year": 2024,
+    "metadata": {"synthetic": true}
+  }
+]

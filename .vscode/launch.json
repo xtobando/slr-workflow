@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "SLR: Debug status",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "slr_workbench",
+      "args": [
+        "status"
+      ],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "SLR: Debug initialization",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "slr_workbench",
+      "args": [
+        "init"
+      ],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}
