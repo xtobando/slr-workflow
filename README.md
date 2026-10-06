@@ -9,6 +9,68 @@ approval and a first paper. It uses generic identifiers and supports macOS, Linu
 and Windows. The example protocol and papers are synthetic: use a separate demo
 checkout for practice, and customize the protocol before importing real research.
 
+## Quick setup (recommended)
+
+1. Install **Python 3.12** using the [platform instructions below](#1-install-tools-for-your-platform).
+   On Windows/macOS, use the python.org installer. OpenCode is installed separately.
+2. On this GitHub page, choose **Code > Download ZIP**, extract the whole archive,
+   and open a terminal in the extracted folder. Alternatively, clone the repository.
+3. Run the command for your platform:
+
+**Windows — PowerShell:**
+
+```powershell
+powershell -File scripts/setup.ps1
+```
+
+If local policy blocks PowerShell scripts, run the same setup directly with Python:
+
+```powershell
+py -3.12 scripts/setup.py
+```
+
+**macOS/Linux — Terminal:**
+
+```sh
+bash scripts/setup.sh
+```
+
+Setup creates `.venv`, installs pinned uv in a separate `.venv-setup` folder,
+installs the locked core and pytest, then validates the project and CLI. Internet
+access is required for downloads. It does not install Python, OpenCode, PDF
+conversion or semantic-search adapters. An incompatible existing environment
+causes setup to stop with migration instructions; it is never automatically deleted.
+Compatible environments are reused, including installed optional packages.
+Review data and scientific configuration are preserved.
+
+When setup completes, continue at [step 4](#4-set-up-the-editor-and-pdf-viewer-optional)
+for the optional editor and [step 5](#5-configure-opencode-and-select-a-model) for
+OpenCode/model setup, then customize and approve your protocol in step 6.
+
+No global uv installation or environment activation is needed. In the rest of
+this tutorial, replace the `uv` command with the project-local prefix:
+
+| Platform | Replace `uv` with |
+| --- | --- |
+| Windows | `.\.venv-setup\Scripts\python.exe -m uv` |
+| macOS/Linux | `.venv-setup/bin/python -m uv` |
+
+For example, once OpenCode is installed:
+
+```powershell
+# Windows
+.\.venv-setup\Scripts\python.exe -m uv run --no-sync opencode
+```
+
+```sh
+# macOS/Linux
+.venv-setup/bin/python -m uv run --no-sync opencode
+```
+
+You can rerun the setup command after updating the project. For full control or
+troubleshooting, use the detailed manual installation below. See also the
+[Windows environment migration guide](docs/windows-setup.md).
+
 ## What you will install
 
 | Component | Purpose | Required? |

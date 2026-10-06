@@ -1,5 +1,14 @@
 # Validation record — iteration 1
 
+## Guided setup validation
+
+The suite now passes **103 tests** locally. Setup tests cover preservation of
+incomplete/incompatible environments, locked installation with existing extras
+retained, and installation failure reporting. Project validation and lint pass;
+the Bash wrapper passes a syntax check. CI is configured to exercise the Unix
+wrapper on Python 3.12 and the PowerShell wrapper twice with official Windows
+Python (including reuse). Those installer runs remain unverified locally.
+
 ## Core dependency migration
 
 The argparse/dataclass migration passes **99 tests** on macOS with Python 3.12.15,

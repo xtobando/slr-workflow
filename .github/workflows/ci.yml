@@ -33,6 +33,10 @@ jobs:
         run: python -c "import os,sys; open(os.environ['GITHUB_ENV'], 'a').write('UV_PYTHON=' + sys.executable + '\n')"
       - name: Install locked core and development dependencies
         run: uv sync --locked --extra dev --extra lint
+      - name: Exercise guided setup on macOS and Linux
+        if: matrix.python == '3.12' && runner.os != 'Windows'
+        shell: bash
+        run: bash scripts/setup.sh
       - name: Validate project configuration
         run: uv run --no-sync python scripts/validate_project.py
       - name: Lint
@@ -68,6 +72,13 @@ jobs:
           if ($Install.ExitCode -notin @(0, 3010)) { throw "Python install failed: $($Install.ExitCode)" }
           "UV_PYTHON=$PythonDir\python.exe" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
       - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+      - name: Exercise guided setup with the official Python
+        shell: pwsh
+        run: |
+          ./scripts/setup.ps1 -PythonPath $env:UV_PYTHON
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./scripts/setup.ps1 -PythonPath $env:UV_PYTHON
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - run: uv sync --locked --extra dev
       - run: uv run --no-sync python -m slr_workbench --help
       - run: uv run --no-sync python scripts/validate_project.py
