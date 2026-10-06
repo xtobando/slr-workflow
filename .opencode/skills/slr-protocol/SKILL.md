@@ -12,5 +12,5 @@ Read `../../../AGENTS.md` and `../../../docs/draft-contract.md` when producing s
 2. Ask for topic-specific information needed to make criteria operational; use the example only as a template.
 3. Draft edits in English. Assign stable IDs and map extraction variables to research questions. Quote YAML strings such as "yes" and "no".
 4. Pilot criteria and extraction forms against representative studies. Describe uncertainty and protocol limitations.
-5. Run `slr init` after edits. Explain the amendment, its reason and the review stage.
-6. Hand `slr approve-protocol --reviewer <identity>` to the user. Do not approve or carry forward earlier decisions yourself.
+5. Run `python -m slr_workbench init` after edits. Explain the amendment, its reason and the review stage.
+6. Hand `python -m slr_workbench approve-protocol --reviewer <identity>` to the user. Do not approve or carry forward earlier decisions yourself.

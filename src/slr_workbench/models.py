@@ -2,25 +2,22 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from datetime import date
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from .validation import StrictModel
 
 EntityType = Literal["review", "record", "report", "study"]
 
 
-class StrictModel(BaseModel):
-    """Reject misspelled fields; use explicit extensions for user-defined metadata."""
-
-    model_config = ConfigDict(extra="forbid")
-
-
+@dataclass(kw_only=True)
 class Question(StrictModel):
-    id: str = Field(min_length=1)
-    text: str = Field(min_length=1)
+    id: str = field(metadata={"min_length": 1})
+    text: str = field(metadata={"min_length": 1})
 
 
+@dataclass(kw_only=True)
 class Criterion(StrictModel):
     id: str
     kind: Literal["inclusion", "exclusion"]
@@ -28,49 +25,55 @@ class Criterion(StrictModel):
     stages: list[str]
 
 
+@dataclass(kw_only=True)
 class Source(StrictModel):
     id: str
     name: str
     category: Literal["database", "register", "other"] = "database"
-    planned_queries: list[str] = Field(default_factory=list)
-    limits: dict[str, Any] = Field(default_factory=dict)
+    planned_queries: list[str] = field(default_factory=list)
+    limits: dict[str, Any] = field(default_factory=dict)
 
 
+@dataclass(kw_only=True)
 class Reviewers(StrictModel):
-    identities: list[str] = Field(min_length=1)
-    minimum_per_decision: int = Field(default=1, ge=1)
+    identities: list[str] = field(metadata={"min_length": 1})
+    minimum_per_decision: int = field(default=1, metadata={"ge": 1})
     independent: bool = False
     disagreement_procedure: str
 
 
+@dataclass(kw_only=True)
 class ExtractionField(StrictModel):
     id: str
     description: str
     type: Literal["text", "number", "integer", "boolean", "list"] = "text"
     required: bool = True
-    choices: list[str] = Field(default_factory=list)
-    research_questions: list[str] = Field(default_factory=list)
+    choices: list[str] = field(default_factory=list)
+    research_questions: list[str] = field(default_factory=list)
 
 
+@dataclass(kw_only=True)
 class QualityItem(StrictModel):
     id: str
     question: str
-    answers: list[str] = Field(min_length=1)
+    answers: list[str] = field(metadata={"min_length": 1})
 
 
+@dataclass(kw_only=True)
 class Paths(StrictModel):
     database: str = "data/slr.sqlite"
     artifacts: str = "data/artifacts"
     exports: str = "data/exports"
 
 
+@dataclass(kw_only=True)
 class Protocol(StrictModel):
     schema_version: Literal[1] = 1
     review_id: str
     title: str
     rationale: str
-    questions: list[Question] = Field(min_length=1)
-    sources: list[Source] = Field(min_length=1)
+    questions: list[Question] = field(metadata={"min_length": 1})
+    sources: list[Source] = field(metadata={"min_length": 1})
     eligibility: list[Criterion]
     reviewers: Reviewers
     quality: list[QualityItem]
@@ -78,11 +81,10 @@ class Protocol(StrictModel):
     synthesis: dict[str, Any]
     search_start: date | None = None
     search_end: date | None = None
-    paths: Paths = Field(default_factory=Paths)
-    extensions: dict[str, Any] = Field(default_factory=dict)
+    paths: Paths = field(default_factory=Paths)
+    extensions: dict[str, Any] = field(default_factory=dict)
 
-    @model_validator(mode="after")
-    def validate_identifiers(self) -> Protocol:
+    def validate_model(self) -> Protocol:
         for group in (
             self.questions,
             self.sources,
@@ -106,17 +108,19 @@ class Protocol(StrictModel):
         return self
 
 
+@dataclass(kw_only=True)
 class Stage(StrictModel):
     id: str
     name: str
     skill: str
     entity: EntityType
     enabled: bool = True
-    choices: list[str] = Field(min_length=1)
-    requires: list[str] = Field(default_factory=list)
-    extensions: dict[str, Any] = Field(default_factory=dict)
+    choices: list[str] = field(metadata={"min_length": 1})
+    requires: list[str] = field(default_factory=list)
+    extensions: dict[str, Any] = field(default_factory=dict)
 
 
+@dataclass(kw_only=True)
 class Roles(StrictModel):
     record_screening: str
     report_screening: str
@@ -124,14 +128,14 @@ class Roles(StrictModel):
     extraction: str
 
 
+@dataclass(kw_only=True)
 class Workflow(StrictModel):
     schema_version: Literal[1] = 1
     stages: list[Stage]
     roles: Roles
-    extensions: dict[str, Any] = Field(default_factory=dict)
+    extensions: dict[str, Any] = field(default_factory=dict)
 
-    @model_validator(mode="after")
-    def validate_graph(self) -> Workflow:
+    def validate_model(self) -> Workflow:
         stages = {s.id: s for s in self.stages}
         if len(stages) != len(self.stages):
             raise ValueError("Workflow stage identifiers must be unique")
@@ -163,32 +167,34 @@ class Workflow(StrictModel):
         return self
 
 
+@dataclass(kw_only=True)
 class RecordInput(StrictModel):
-    source_record_id: str = Field(min_length=1)
-    title: str = Field(min_length=1)
+    source_record_id: str = field(metadata={"min_length": 1})
+    title: str = field(metadata={"min_length": 1})
     abstract: str = ""
     doi: str | None = None
     year: int | None = None
-    authors: list[str] = Field(default_factory=list)
+    authors: list[str] = field(default_factory=list)
     url: str | None = None
-    metadata: dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
+@dataclass(kw_only=True)
 class Evidence(StrictModel):
     source: Literal["title", "abstract", "document"]
-    quote: str = Field(min_length=1)
+    quote: str = field(metadata={"min_length": 1})
     document_id: str | None = None
-    page: int | None = Field(default=None, ge=1)
+    page: int | None = field(default=None, metadata={"ge": 1})
     element_id: str | None = None
 
 
+@dataclass(kw_only=True)
 class ExtractedValue(StrictModel):
     status: Literal["observed", "not_reported", "not_applicable", "unclear"]
     value: Any = None
-    evidence: list[Evidence] = Field(default_factory=list)
+    evidence: list[Evidence] = field(default_factory=list)
 
-    @model_validator(mode="after")
-    def validate_missingness(self) -> ExtractedValue:
+    def validate_model(self) -> ExtractedValue:
         if self.status == "observed" and (self.value is None or not self.evidence):
             raise ValueError("Observed values require a value and supporting evidence")
         if self.status != "observed" and self.value is not None:
@@ -196,6 +202,7 @@ class ExtractedValue(StrictModel):
         return self
 
 
+@dataclass(kw_only=True)
 class Provenance(StrictModel):
     wrapper: str = "opencode"
     provider: str | None = None
@@ -205,14 +212,15 @@ class Provenance(StrictModel):
     notes: str = ""
 
 
+@dataclass(kw_only=True)
 class Draft(StrictModel):
     protocol_revision: str
     entity_type: EntityType
     entity_id: str
     stage: str
     suggestion: str
-    rationale: str = Field(min_length=1)
-    criteria: list[str] = Field(default_factory=list)
-    evidence: list[Evidence] = Field(default_factory=list)
-    values: dict[str, ExtractedValue] = Field(default_factory=dict)
-    provenance: Provenance = Field(default_factory=Provenance)
+    rationale: str = field(metadata={"min_length": 1})
+    criteria: list[str] = field(default_factory=list)
+    evidence: list[Evidence] = field(default_factory=list)
+    values: dict[str, ExtractedValue] = field(default_factory=dict)
+    provenance: Provenance = field(default_factory=Provenance)

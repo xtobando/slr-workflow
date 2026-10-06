@@ -19,7 +19,7 @@ raw import, content hash and completeness flag. Multiple records can point to
 one publication. Reports and studies are linked by human-recorded events.
 
 Protocol/workflow versions retain their exact YAML. Their combined hash is the
-revision. Proposals retain Pydantic payloads plus the submitted skill hash.
+revision. Proposals retain validated JSON payloads plus the submitted skill hash.
 Decisions contain reviewer, choice, reasons, criteria, evidence, extracted values
 and a supersedes link. Append-only triggers protect source/audit tables against
 ordinary UPDATE/DELETE operations. Foreign keys are enabled on every connection.

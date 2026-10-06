@@ -14,15 +14,15 @@ checkout for practice, and customize the protocol before importing real research
 | Component | Purpose | Required? |
 | --- | --- | --- |
 | Git | Download and update the project | Yes for the clone instructions |
-| uv 0.12.23 | Install pinned Python and dependencies | Yes for this tutorial |
-| Python 3.12.15 | Run the workbench | Downloaded automatically by uv |
+| uv 0.12.23 | Install locked dependencies | Yes for this tutorial |
+| Python 3.12 | Run the workbench | Install separately; python.org on Windows/macOS |
 | OpenCode | Run the agent and stage skills | Yes for AI-assisted review |
 | VS Code and PDF Viewer | Edit configuration and inspect original PDFs | Optional |
 | Docling | Convert PDFs into Markdown and structured text | Optional |
 | Chroma and embedding model | Search included papers semantically | Optional |
 
 The Python core requires Python 3.11 or newer. The repository pins its default
-Python in `.python-version`, uv in `pyproject.toml`, and dependencies in `uv.lock`.
+Python minor version in `.python-version`, uv in `pyproject.toml`, and dependencies in `uv.lock`.
 No direct LLM API client or OpenRouter dependency is required by the Python core.
 An internet connection is needed for the initial downloads and hosted providers.
 
@@ -40,7 +40,9 @@ Install Git through Apple's command-line tools if `git --version` fails:
 xcode-select --install
 ```
 
-Finish the installation dialog before continuing. Install the pinned uv version
+Install Python 3.12 using the signed macOS installer from
+[python.org](https://www.python.org/downloads/release/python-31210/).
+Verify `python3.12 --version`. Finish the installation dialogs before continuing. Install the pinned uv version
 and the OpenCode V2 version used for the project's compatibility check:
 
 ```sh
@@ -67,6 +69,8 @@ Install Git and the download utilities:
 ```sh
 sudo apt update
 sudo apt install -y git curl ca-certificates tar
+# Ubuntu 24.04 provides Python 3.12:
+sudo apt install -y python3.12 python3.12-venv
 curl -LsSf https://astral.sh/uv/0.12.23/install.sh | sh
 curl -fsSL https://opencode.ai/v2/install | bash -s -- --version 2.0.23
 ```
@@ -79,11 +83,19 @@ uv --version
 opencode --version
 ```
 
-On another distribution, install Git, curl, CA certificates and tar with its
+On another distribution, install Python 3.12 with venv support (from the distribution
+or build an official python.org source release), Git, curl, CA certificates and tar with its
 package manager before running the two installers. For optional VS Code setup,
 follow the [Linux installation guide](https://code.visualstudio.com/docs/setup/linux).
 
 ### Windows — PowerShell
+
+First install Python 3.12 from the official
+[python.org release page](https://www.python.org/downloads/release/python-31210/),
+including the Python launcher. Verify `py -3.12 --version`. Python 3.12.10 is the
+last 3.12 release with official Windows/macOS installers; later 3.12 security
+releases are source-only. This installer choice is not a claim that 3.12.10
+contains later security fixes.
 
 Install Git and, optionally, VS Code using Windows Package Manager:
 
@@ -156,27 +168,49 @@ the synthetic demonstration so it cannot mix with a real review's database.
 
 ## 3. Install Python and the workbench
 
-These commands are the same on all three platforms:
+Create the virtual environment with the separately installed Python. If migrating
+an existing environment, follow [the Windows migration guide](docs/windows-setup.md)
+first; an existing uv-managed environment will not change its base interpreter.
+
+macOS/Linux:
 
 ```sh
-uv sync --locked --extra dev
-uv run --no-sync python --version
-uv run --no-sync slr --help
-uv run --no-sync python scripts/validate_project.py
-uv run --no-sync pytest -q
+python3.12 -m venv .venv
+uv sync --locked --extra dev --python .venv/bin/python
 ```
 
-`uv sync` downloads the pinned Python if necessary, creates `.venv`, and installs
-the core plus lightweight validation/test tools. `--locked` refuses to silently
-change the dependency lockfile. Expect Python 3.12.15, CLI help, successful project
-validation and passing tests.
+Windows PowerShell:
 
-Throughout this tutorial, **`uv run --no-sync` uses the environment just installed**
-without removing optional packages. After changing dependencies, explicitly run
-`uv sync --locked` with the desired extras again. No shell activation is needed.
-If an incompatible `.venv` already exists, preserve anything needed from it before
-syncing: uv can recreate it. Legacy `requirements*.txt` are pip entry points with
-version ranges; they do not reproduce the locked setup used here.
+```powershell
+py -3.12 -m venv .venv
+uv sync --locked --extra dev --python .venv\Scripts\python.exe
+```
+
+Then, on every platform:
+
+```sh
+uv run --no-sync python --version
+uv run --no-sync python -m slr_workbench --help
+uv run --no-sync python scripts/validate_project.py
+uv run --no-sync python -m pytest -q
+```
+
+The project disables uv-managed Python downloads and requests a system interpreter.
+`--locked` refuses to silently change dependency resolutions. The core installs
+Rich and PyYAML; `dev` adds pytest. Validation uses standard-library dataclasses
+and the CLI uses argparse. No Typer or Pydantic is required for the core.
+PyYAML uses its Python `SafeLoader` through `yaml.safe_load`.
+
+Throughout this tutorial, **`uv run --no-sync` uses the installed environment**
+without removing optional packages. No shell activation is needed. On Windows,
+`.\.venv\Scripts\python.exe -m slr_workbench --help` also works directly.
+`python -m` avoids the generated `slr.exe` and
+`pytest.exe` launchers. The legacy `slr` command remains available.
+
+After changing dependencies, explicitly sync all desired extras again. Ruff is
+optional locally: install with `uv sync --locked --extra dev --extra lint`, then
+run `uv run --no-sync python -m ruff check src scripts tests`, or leave linting to CI.
+Legacy `requirements*.txt` are pip entry points with ranges, not locked installs.
 
 ## 4. Set up the editor and PDF viewer (optional)
 
@@ -231,7 +265,7 @@ hard-coded in the project; its skills inherit the session selection. See the
 The project already supplies `AGENTS.md`, skills and slash commands; an OpenCode
 `/init` is unnecessary. Keep this terminal for agent work and open a **second
 terminal in the project root** for human review commands. Starting OpenCode through
-uv lets its shell tools find the installed `slr` command.
+uv lets its shell tools use the environment’s `python -m slr_workbench` command.
 
 ## 6. Customize and approve the scientific protocol
 
@@ -250,10 +284,10 @@ OpenCode can help draft amendments with `/slr-protocol`. Review any proposed fil
 changes yourself. After editing either configuration file, run in the second terminal:
 
 ```sh
-uv run --no-sync slr init
-uv run --no-sync slr approve-protocol --reviewer REVIEWER_ID
-uv run --no-sync slr status
-uv run --no-sync slr audit
+uv run --no-sync python -m slr_workbench init
+uv run --no-sync python -m slr_workbench approve-protocol --reviewer REVIEWER_ID
+uv run --no-sync python -m slr_workbench status
+uv run --no-sync python -m slr_workbench audit
 ```
 
 `init` creates the database and registers the exact configuration revision.
@@ -274,10 +308,10 @@ configured. The fixture DOIs and papers are fictional and must never be cited.
 In the human terminal:
 
 ```sh
-uv run --no-sync slr import-records examples/records.json --run-id demo-search-001 --source demo-database --query "synthetic demonstration" --searched-at "2026-10-05T00:00:00+00:00"
-uv run --no-sync slr deduplicate
-uv run --no-sync slr records
-uv run --no-sync slr status
+uv run --no-sync python -m slr_workbench import-records examples/records.json --run-id demo-search-001 --source demo-database --query "synthetic demonstration" --searched-at "2026-10-05T00:00:00+00:00"
+uv run --no-sync python -m slr_workbench deduplicate
+uv run --no-sync python -m slr_workbench records
+uv run --no-sync python -m slr_workbench status
 ```
 
 Expect three source records, one exact DOI duplicate, and two records pending
@@ -300,7 +334,7 @@ Ask it to follow the configured record-screening role, submit the evidence-backe
 draft with `slr submit`, and return its proposal ID. In the human terminal:
 
 ```sh
-uv run --no-sync slr review PROPOSAL_ID --reviewer REVIEWER_ID
+uv run --no-sync python -m slr_workbench review PROPOSAL_ID --reviewer REVIEWER_ID
 ```
 
 Inspect the evidence, choose accept/modify/defer and explicitly confirm saving.
@@ -315,13 +349,18 @@ assessment only for a record with an effective human inclusion decision.
 Attach the synthetic text to the included demo report:
 
 ```sh
-uv run --no-sync slr attach REPORT_ID examples/full-text.md --kind markdown
+uv run --no-sync python -m slr_workbench attach REPORT_ID examples/full-text.md --kind markdown
 ```
 
 This is sufficient to practice the next review stages. Markdown prepared by
 another converter can also be attached with `--kind markdown`.
 
 ### Real PDF — archive, read and convert
+
+**Optional adapters have a different dependency footprint.** Docling and Chroma
+can install Pydantic, Typer and native libraries transitively. They are outside
+the simplified core and have not been verified against Windows Defender. For
+the minimal installation, attach verified Markdown from another converter.
 
 First import the paper's bibliographic record and complete title/abstract
 screening. Copy the actual report ID from `slr records`. Replace the quoted PDF
@@ -330,17 +369,17 @@ path with a real local path, keeping quotes around paths containing spaces.
 macOS/Linux:
 
 ```sh
-uv run --no-sync slr attach REPORT_ID "/path/to/paper.pdf" --kind pdf
+uv run --no-sync python -m slr_workbench attach REPORT_ID "/path/to/paper.pdf" --kind pdf
 uv sync --locked --extra dev --extra documents
-uv run --no-sync slr convert REPORT_ID "/path/to/paper.pdf"
+uv run --no-sync python -m slr_workbench convert REPORT_ID "/path/to/paper.pdf"
 ```
 
 Windows PowerShell:
 
 ```powershell
-uv run --no-sync slr attach REPORT_ID "C:\path\to\paper.pdf" --kind pdf
+uv run --no-sync python -m slr_workbench attach REPORT_ID "C:\path\to\paper.pdf" --kind pdf
 uv sync --locked --extra dev --extra documents
-uv run --no-sync slr convert REPORT_ID "C:\path\to\paper.pdf"
+uv run --no-sync python -m slr_workbench convert REPORT_ID "C:\path\to\paper.pdf"
 ```
 
 The original is archived under `data/artifacts/REPORT_ID/`. Open that PDF in
@@ -370,7 +409,7 @@ Use these commands **inside OpenCode**, one stage at a time:
 After **each** stage returns a proposal, stop and review it in the human terminal:
 
 ```sh
-uv run --no-sync slr review PROPOSAL_ID --reviewer REVIEWER_ID
+uv run --no-sync python -m slr_workbench review PROPOSAL_ID --reviewer REVIEWER_ID
 ```
 
 Do not start a dependent stage until its required approvals are effective.
@@ -382,10 +421,10 @@ Replace `STUDY_ID` and the label with meaningful identifiers for that investigat
 multiple publications can belong to the same study:
 
 ```sh
-uv run --no-sync slr link-study REPORT_ID STUDY_ID --label "Study label" --reviewer REVIEWER_ID
-uv run --no-sync slr status
-uv run --no-sync slr report
-uv run --no-sync slr audit
+uv run --no-sync python -m slr_workbench link-study REPORT_ID STUDY_ID --label "Study label" --reviewer REVIEWER_ID
+uv run --no-sync python -m slr_workbench status
+uv run --no-sync python -m slr_workbench report
+uv run --no-sync python -m slr_workbench audit
 ```
 
 `report` prints an export directory under `data/exports/`, containing count JSON,
@@ -396,7 +435,7 @@ not replace the full reporting checklist or certify methodological quality.
 If a report cannot be obtained, record that separately from scientific exclusion:
 
 ```sh
-uv run --no-sync slr retrieval REPORT_ID not_retrieved --reviewer REVIEWER_ID --reason "Describe the actual retrieval attempts"
+uv run --no-sync python -m slr_workbench retrieval REPORT_ID not_retrieved --reviewer REVIEWER_ID --reason "Describe the actual retrieval attempts"
 ```
 
 This human-only command applies before full text is attached. To correct a study
@@ -409,15 +448,15 @@ Literal search needs no additional dependencies and returns text from included
 publications:
 
 ```sh
-uv run --no-sync slr search-corpus "phrase present in an included paper"
+uv run --no-sync python -m slr_workbench search-corpus "phrase present in an included paper"
 ```
 
 To install both optional adapters while retaining development tools:
 
 ```sh
 uv sync --locked --extra dev --extra documents --extra rag
-uv run --no-sync slr index-corpus
-uv run --no-sync slr retrieve "What evaluation methods were used?"
+uv run --no-sync python -m slr_workbench index-corpus
+uv run --no-sync python -m slr_workbench retrieve "What evaluation methods were used?"
 ```
 
 Index only after papers have effective inclusion decisions and extracted text.
@@ -440,8 +479,8 @@ Select the provider/model as needed and use the appropriate stage command. In
 the second:
 
 ```sh
-uv run --no-sync slr status
-uv run --no-sync slr audit
+uv run --no-sync python -m slr_workbench status
+uv run --no-sync python -m slr_workbench audit
 ```
 
 Continue reviewing proposals there. Do not reimport records under new run IDs or
@@ -455,8 +494,8 @@ pushing the source repository does not back up the review database or PDFs.
 | --- | --- |
 | `uv`, `git`, `opencode` or `code` not found | Reopen the terminal after installation and check the appropriate platform's PATH instructions. `code` is optional. |
 | Wrong uv version | Reinstall uv 0.12.23 using step 1; the project enforces that version. |
-| `slr` not found | Use `uv run --no-sync slr ...` from the project root after syncing. |
-| Python 3.9 or missing Python packages | Run `uv sync --locked --extra dev`; use uv's Python rather than the system interpreter. |
+| `slr` not found | Use `uv run --no-sync python -m slr_workbench ...` from the project root after syncing. |
+| Python 3.9 or missing Python packages | Create `.venv` with the installed Python 3.12 as in step 3, then sync dependencies. |
 | Configuration changed / approval required | Run `slr init` through uv, inspect the changes and approve the new revision yourself. |
 | Unsupported OpenCode version | Check `opencode --version`. Profiles support V1/V2; override with `--major 1` or `--major 2` only after verifying the installed major version. |
 | No model available | Connect an available provider with `/connect`, then choose from `/models`. |
@@ -496,7 +535,7 @@ editable at `.opencode/commands/<name>.md`. The common instructions are in
 | `.vscode/` | Tasks, interpreter settings and debugging entry points |
 | `src/slr_workbench/` | Typed configuration, services, CLI, reporting and optional integrations |
 | `src/slr_workbench/migrations/` | Versioned SQLite schema |
-| `schemas/` | Generated Pydantic contracts |
+| `schemas/` | Generated dataclass JSON contracts |
 | `scripts/` | Initialization, profile selection and project validation |
 | `uv.lock`, `.python-version`, `.github/workflows/ci.yml` | Locked dependencies, default Python and automated core checks |
 | `tests/`, `examples/` | Meaningful invariants and synthetic fixtures |
@@ -514,17 +553,18 @@ updated-review carry-forward and statistical meta-analysis remain future work.
 An LLM is not an independent human reviewer. Keep missingness and disagreements
 explicit and validate the scientific interpretation of evidence.
 
-For development checks and packaging:
+For development checks and packaging (omit local linting if Ruff is blocked):
 
 ```sh
+uv sync --locked --extra dev --extra lint
 uv run --no-sync python scripts/validate_project.py
-uv run --no-sync ruff check src scripts tests
-uv run --no-sync pytest -q
+uv run --no-sync python -m ruff check src scripts tests
+uv run --no-sync python -m pytest -q
 uv build
 uv run --no-sync python scripts/validate_distribution.py
 ```
 
-The commands above assume step 3 installed the development extra. CI is configured
+The sync command installs both test and lint extras. CI is configured
 for Linux, macOS and Windows; consult actual workflow results before claiming a
 platform passed. The platform installers in this tutorial are based on upstream
 instructions, not an end-to-end installation test on every operating system.

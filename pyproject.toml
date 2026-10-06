@@ -8,12 +8,13 @@ version = "0.1.0"
 description = "An editable, evidence-grounded SLR workflow for VS Code and OpenCode"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = ["pydantic>=2.7,<3", "PyYAML>=6,<7", "typer>=0.12,<1", "rich>=13,<15"]
+dependencies = ["PyYAML>=6,<7", "rich>=13,<15"]
 
 [project.optional-dependencies]
 documents = ["docling>=2,<4"]
 rag = ["chromadb>=1,<2", "sentence-transformers>=3,<6"]
-dev = ["pytest>=8,<10", "ruff>=0.6,<1"]
+dev = ["pytest>=8,<10"]
+lint = ["ruff>=0.6,<1"]
 
 [project.scripts]
 slr = "slr_workbench.cli:app"
@@ -34,3 +35,5 @@ target-version = "py311"
 
 [tool.uv]
 required-version = "==0.12.23"
+python-downloads = "never"
+python-preference = "only-system"

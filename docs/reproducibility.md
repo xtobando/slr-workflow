@@ -1,4 +1,4 @@
-python scripts/select_opencode_config.py# Reproducibility and GitHub setup
+# Reproducibility and GitHub setup
 
 ## Reproduce a checkout
 
@@ -23,26 +23,35 @@ For an existing Python with pip, `python -m pip install --user uv==0.12.23` is
 another option; use `python3` on macOS/Linux or `py` on Windows as appropriate.
 Ensure the installer places `uv` on your PATH.
 
+Install Python 3.12 separately and create `.venv` as described in
+[README step 3](../README.md#3-install-python-and-the-workbench). uv is configured
+not to download managed Python. Record the exact patch version and distribution;
+`.python-version` selects a minor version, not a bit-identical interpreter.
+
 ```sh
-uv sync --locked --extra dev
-uv run --locked --extra dev python scripts/validate_project.py
-uv run --locked --extra dev ruff check src scripts tests
-uv run --locked --extra dev pytest -q
-uv run --locked --extra dev slr --help
+uv sync --locked --extra dev --extra lint
+uv run --no-sync python scripts/validate_project.py
+uv run --no-sync python -m ruff check src scripts tests
+uv run --no-sync python -m pytest -q
+uv run --no-sync python -m slr_workbench --help
 uv build
-uv run --locked --extra dev python scripts/validate_distribution.py
+uv run --no-sync python scripts/validate_distribution.py
+uv run --no-sync python -c "import sys; print(sys.version); print(sys.executable); print(sys.base_prefix)"
 ```
 
-The default interpreter is Python 3.12.15. Python 3.11 is the supported minimum;
-CI checks both versions on Linux, macOS and Windows. CI is configured to run on
-pushes and pull requests; its results are only known after it runs on GitHub.
+Ruff is optional locally; omit `--extra lint` and its command if its executable
+is blocked, and use CI linting. Python 3.11 remains the supported minimum.
+CI covers Python 3.11/3.12 on Linux, macOS and Windows, plus the signed python.org
+3.12.10 Windows installer. Hosted results are only known after those jobs run;
+they do not guarantee compatibility with every Defender policy.
 The tests create temporary synthetic projects and never approve or modify your
 real review. Run real approval commands yourself in a separate terminal.
 
 `uv.lock` records all dependency resolutions, including optional adapters, while
 `uv sync --locked --extra dev` installs only the core and development extra.
-The build backend is pinned in `pyproject.toml`. CI actions are pinned by commit.
-An initial setup needs network access for Python and packages. Repeating the
+Optional adapters can reintroduce Pydantic, Typer and native dependencies.
+The core does not depend on them. The build backend is pinned in `pyproject.toml`. CI actions are pinned by commit.
+Install Python separately; the initial dependency sync needs network access. Repeating the
 checks with installed dependencies needs no LLM login or downloaded model.
 See [uv's locking documentation](https://docs.astral.sh/uv/concepts/projects/sync/)
 for the distinction between locking and syncing.

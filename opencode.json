@@ -56,7 +56,17 @@
     },
     {
       "action": "shell",
+      "resource": "python -m slr_workbench init*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
       "resource": "slr workflow*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "python -m slr_workbench workflow*",
       "effect": "allow"
     },
     {
@@ -66,7 +76,17 @@
     },
     {
       "action": "shell",
+      "resource": "python -m slr_workbench records*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
       "resource": "slr status*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "python -m slr_workbench status*",
       "effect": "allow"
     },
     {
@@ -76,7 +96,17 @@
     },
     {
       "action": "shell",
+      "resource": "python -m slr_workbench packet*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
       "resource": "slr proposal*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "python -m slr_workbench proposal*",
       "effect": "allow"
     },
     {
@@ -86,7 +116,17 @@
     },
     {
       "action": "shell",
+      "resource": "python -m slr_workbench submit*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
       "resource": "slr deduplicate*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "python -m slr_workbench deduplicate*",
       "effect": "allow"
     },
     {
@@ -96,7 +136,17 @@
     },
     {
       "action": "shell",
+      "resource": "python -m slr_workbench attach*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
       "resource": "slr report*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "python -m slr_workbench report*",
       "effect": "allow"
     },
     {
@@ -106,12 +156,27 @@
     },
     {
       "action": "shell",
+      "resource": "python -m slr_workbench audit*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
       "resource": "slr search-corpus*",
       "effect": "allow"
     },
     {
       "action": "shell",
+      "resource": "python -m slr_workbench search-corpus*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
       "resource": "slr schema*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "python -m slr_workbench schema*",
       "effect": "allow"
     },
     {

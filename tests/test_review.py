@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 import yaml
-from typer.testing import CliRunner
+from cli_runner import CliRunner
 
 from slr_workbench.cli import app
 from slr_workbench.config import load_configuration

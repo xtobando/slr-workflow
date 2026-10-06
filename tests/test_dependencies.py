@@ -6,8 +6,8 @@ import json
 
 import pytest
 import yaml
+from cli_runner import CliRunner
 from test_review import ROOT, draft_for, include_report, quality_and_extraction, submit
-from typer.testing import CliRunner
 
 from slr_workbench.cli import app
 from slr_workbench.config import load_configuration

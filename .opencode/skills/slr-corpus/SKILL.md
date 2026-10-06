@@ -8,8 +8,8 @@ description: Retrieve and answer questions about included review evidence with v
 
 Read `../../../AGENTS.md` and `../../../docs/draft-contract.md` when producing structured drafts. Resolve executable commands from the project root, with the environment activated.
 
-1. Use `slr status` to confirm included publications. Answer numerical workflow/decision questions from SQLite-derived CLI output.
-2. For evidence queries, use `slr search-corpus <literal phrase>` or, after optional dependency installation, `slr index-corpus` and `slr retrieve <query>`.
+1. Use `python -m slr_workbench status` to confirm included publications. Answer numerical workflow/decision questions from SQLite-derived CLI output.
+2. For evidence queries, use `python -m slr_workbench search-corpus <literal phrase>` or, after optional dependency installation, `python -m slr_workbench index-corpus` and `python -m slr_workbench retrieve <query>`.
 3. Inspect retrieved snippets and their report_id, document_id, element_id and page. A vector distance is not calibrated relevance probability.
 4. Cite each supported factual claim to its actual retrieved document/anchor. Read additional context when the fragment cannot establish the interpretation.
 5. Label synthesis inferences explicitly; preserve contradictions and say when evidence is insufficient. A citation's existence does not prove entailment.

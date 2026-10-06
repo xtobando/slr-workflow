@@ -184,7 +184,7 @@
     {
       "label": "SLR: OpenCode",
       "type": "process",
-      "command": "opencode",
+      "command": "uv",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -192,15 +192,19 @@
         "reveal": "always",
         "panel": "dedicated"
       },
-      "problemMatcher": []
+      "problemMatcher": [],
+      "args": [
+        "run",
+        "--no-sync",
+        "opencode"
+      ]
     }
   ],
   "inputs": [
     {
       "id": "reviewer",
       "type": "promptString",
-      "description": "Configured human reviewer identity",
-      "default": "thomas"
+      "description": "Configured human reviewer identity"
     },
     {
       "id": "proposalId",

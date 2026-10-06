@@ -1,6 +1,21 @@
 # Validation record — iteration 1
 
-## Current regression validation
+## Core dependency migration
+
+The argparse/dataclass migration passes **99 tests** on macOS with Python 3.12.15,
+including a clean environment containing only core dependencies and pytest.
+Tests cover nested validation, unknown fields, serialization, unchanged draft
+JSON Schema, module execution, and rejection of piped human decisions. An import
+blocker also checks core CLI execution without Typer, Pydantic or ctypes.
+This is not a Windows Defender compatibility guarantee. The Windows python.org
+installer CI job has been added; its results are pending execution. No scientific
+configuration or database migrations were changed.
+
+Use the current [reproducibility commands](reproducibility.md) to rerun checks.
+Ruff is a separate optional `lint` extra. Optional conversion/vector adapters
+remain outside this core validation.
+
+## Earlier regression validation
 
 Validated on 2026-10-05 on macOS arm64 with Python 3.12.15 and uv 0.12.23,
 using the committed dependency lockfile in a separate `.venv-review` environment.
@@ -26,16 +41,10 @@ The original build recorded validation on 2026-10-05 with Python 3.12.14 on Linu
 The supported Python floor is 3.11; Windows, macOS and Python 3.11 have not been
 exercised in this build.
 
-## Reproduce the core checks
+## Historical core checks
 
-```sh
-uv sync --locked --extra dev
-uv run --locked --extra dev python scripts/validate_project.py
-uv run --locked --extra dev ruff check src scripts tests
-uv run --locked --extra dev pytest -q
-uv build
-uv run --locked --extra dev python scripts/validate_distribution.py
-```
+The following records describe earlier dependency versions. Use the current
+[setup guide](../README.md) and [check commands](reproducibility.md) today.
 
 In the original build, all **21 tests passed**. Ruff reported no remaining errors. Project validation
 checked the 12 workflow stages, matching skill/command files, portable skill
@@ -94,8 +103,8 @@ review's evidence base.
 | Ruff | 0.16.10 |
 
 The table describes the original build, not every package in the current lockfile.
-`uv.lock` now pins cross-platform dependency resolutions; `.python-version` pins
-the default interpreter. The legacy pip requirements still use compatible ranges.
+`uv.lock` now pins cross-platform dependency resolutions; `.python-version` selects
+the default interpreter minor version. The legacy pip requirements still use compatible ranges.
 For a real review, retain the lockfile and actual runtime details with your protocol,
 project commit and export manifests.
 

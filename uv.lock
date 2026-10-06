@@ -2,17 +2,17 @@ version = 1
 revision = 5
 requires-python = ">=3.11"
 resolution-markers = [
-    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform == 'win32'",
-    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version >= '4' and sys_platform == 'win32'",
     "python_full_version >= '4' and sys_platform == 'emscripten'",
     "python_full_version >= '4' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform == 'win32'",
+    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform == 'emscripten'",
+    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version == '3.13.*' and sys_platform == 'win32'",
-    "python_full_version == '3.12.*' and sys_platform == 'win32'",
     "python_full_version == '3.13.*' and sys_platform == 'emscripten'",
-    "python_full_version == '3.12.*' and sys_platform == 'emscripten'",
     "python_full_version == '3.13.*' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version == '3.12.*' and sys_platform == 'win32'",
+    "python_full_version == '3.12.*' and sys_platform == 'emscripten'",
     "python_full_version == '3.12.*' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version < '3.12' and sys_platform == 'win32'",
     "python_full_version < '3.12' and sys_platform == 'emscripten'",
@@ -1997,17 +1997,17 @@ name = "networkx"
 version = "3.7"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform == 'win32'",
-    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version >= '4' and sys_platform == 'win32'",
     "python_full_version >= '4' and sys_platform == 'emscripten'",
     "python_full_version >= '4' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform == 'win32'",
+    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform == 'emscripten'",
+    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version == '3.13.*' and sys_platform == 'win32'",
-    "python_full_version == '3.12.*' and sys_platform == 'win32'",
     "python_full_version == '3.13.*' and sys_platform == 'emscripten'",
-    "python_full_version == '3.12.*' and sys_platform == 'emscripten'",
     "python_full_version == '3.13.*' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version == '3.12.*' and sys_platform == 'win32'",
+    "python_full_version == '3.12.*' and sys_platform == 'emscripten'",
     "python_full_version == '3.12.*' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/dc/76/3af777226b63a5e64a6b36b1ec5855c14e2b94a37096d4760e595fc43511/networkx-3.7.tar.gz", hash = "sha256:fd77a511bd90f39f3d016351345b52cf5319b813bdca01de3f755d3cca62e96a", size = 1866482, upload-time = "2026-09-21T16:45:16.974Z" }
@@ -2104,17 +2104,17 @@ name = "numpy"
 version = "2.5.3"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform == 'win32'",
-    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version >= '4' and sys_platform == 'win32'",
     "python_full_version >= '4' and sys_platform == 'emscripten'",
     "python_full_version >= '4' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform == 'win32'",
+    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform == 'emscripten'",
+    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version == '3.13.*' and sys_platform == 'win32'",
-    "python_full_version == '3.12.*' and sys_platform == 'win32'",
     "python_full_version == '3.13.*' and sys_platform == 'emscripten'",
-    "python_full_version == '3.12.*' and sys_platform == 'emscripten'",
     "python_full_version == '3.13.*' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version == '3.12.*' and sys_platform == 'win32'",
+    "python_full_version == '3.12.*' and sys_platform == 'emscripten'",
     "python_full_version == '3.12.*' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/13/01/11703282db468b85f6f7b8c7f22d058de5970d5c7e60a3a8aaa313c3de36/numpy-2.5.3.tar.gz", hash = "sha256:df2d5874ff183595a4ba404edd04f6bd9b5505c1d7708573f6a6c17489a67563", size = 20791231, upload-time = "2026-09-06T16:27:47.073Z" }
@@ -4067,17 +4067,17 @@ name = "scipy"
 version = "1.18.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform == 'win32'",
-    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform == 'emscripten'",
-    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version >= '4' and sys_platform == 'win32'",
     "python_full_version >= '4' and sys_platform == 'emscripten'",
     "python_full_version >= '4' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform == 'win32'",
+    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform == 'emscripten'",
+    "python_full_version >= '3.14' and python_full_version < '4' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version == '3.13.*' and sys_platform == 'win32'",
-    "python_full_version == '3.12.*' and sys_platform == 'win32'",
     "python_full_version == '3.13.*' and sys_platform == 'emscripten'",
-    "python_full_version == '3.12.*' and sys_platform == 'emscripten'",
     "python_full_version == '3.13.*' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version == '3.12.*' and sys_platform == 'win32'",
+    "python_full_version == '3.12.*' and sys_platform == 'emscripten'",
     "python_full_version == '3.12.*' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 dependencies = [
@@ -4274,19 +4274,19 @@ name = "slr-opencode-workbench"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
-    { name = "pydantic" },
     { name = "pyyaml" },
     { name = "rich" },
-    { name = "typer" },
 ]
 
 [package.optional-dependencies]
 dev = [
     { name = "pytest" },
-    { name = "ruff" },
 ]
 documents = [
     { name = "docling" },
+]
+lint = [
+    { name = "ruff" },
 ]
 rag = [
     { name = "chromadb" },
@@ -4297,15 +4297,13 @@ rag = [
 requires-dist = [
     { name = "chromadb", marker = "extra == 'rag'", specifier = ">=1,<2" },
     { name = "docling", marker = "extra == 'documents'", specifier = ">=2,<4" },
-    { name = "pydantic", specifier = ">=2.7,<3" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8,<10" },
     { name = "pyyaml", specifier = ">=6,<7" },
     { name = "rich", specifier = ">=13,<15" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.6,<1" },
+    { name = "ruff", marker = "extra == 'lint'", specifier = ">=0.6,<1" },
     { name = "sentence-transformers", marker = "extra == 'rag'", specifier = ">=3,<6" },
-    { name = "typer", specifier = ">=0.12,<1" },
 ]
-provides-extras = ["documents", "rag", "dev"]
+provides-extras = ["documents", "rag", "dev", "lint"]
 
 [[package]]
 name = "soupsieve"

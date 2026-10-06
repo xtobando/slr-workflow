@@ -13,5 +13,5 @@ Read `../../../AGENTS.md` and `../../../docs/draft-contract.md` when producing s
 3. Populate required variables. Use observed with a value and exact document evidence; otherwise use not_reported, not_applicable or unclear with null.
 4. Preserve metric units, dataset, experimental split, baseline and evaluation conditions. Keep author claims distinct from synthesis inferences.
 5. Do not fill absent numbers from an abstract, a cited paper, background knowledge or arithmetic assumptions. Missingness is valid output.
-6. Write the draft JSON and run `slr submit`. Hand `slr review` to the user. For human corrections, supply an editable full draft as --decision-file.
+6. Write the draft JSON and run `python -m slr_workbench submit`. Hand `python -m slr_workbench review` to the user. For human corrections, supply an editable full draft as --decision-file.
 7. Only human-approved extraction is used in deterministic summary exports. Do not write values directly to SQLite or CSV.

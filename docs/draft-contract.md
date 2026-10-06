@@ -1,9 +1,9 @@
 # Structured draft contract
 
-Read `schemas/draft.schema.json` or run `slr schema`. A generic Pydantic schema
+Read `schemas/draft.schema.json` or run `python -m slr_workbench schema`. A generic dataclass-generated schema
 checks shape; submission additionally checks the current protocol and workflow.
 
-Run `slr packet <stage-id> <entity-id>` for the current revision, target, criteria,
+Run `python -m slr_workbench packet <stage-id> <entity-id>` for the current revision, target, criteria,
 documents and a draft skeleton. Replace all skeleton instructions with actual
 evidence-backed content. Skeletons are not scientific findings.
 
@@ -53,8 +53,8 @@ Quote `yes`/`no` in YAML to prevent their interpretation as booleans by PyYAML.
 
 ## Proposals and decisions
 
-`slr submit` validates and stores an agent proposal. It changes no eligibility.
-`slr review` requires a human-operated terminal and produces a new decision.
+`python -m slr_workbench submit` validates and stores an agent proposal. It changes no eligibility.
+`python -m slr_workbench review` requires a human-operated terminal and produces a new decision.
 Criteria on an exclusion must be applicable; the first ID is the primary reason.
 Reviewer revisions supersede their earlier decision without deleting it.
 
