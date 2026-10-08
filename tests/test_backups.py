@@ -81,3 +81,13 @@ def test_interrupted_backup_keeps_previous_archive(review, tmp_path, monkeypatch
         create_backup(review.config.root, folder)
     assert list(folder.glob("*.zip")) == [Path(prior["backup"])]
     assert verify_backup(Path(prior["backup"]))["verified"]
+
+
+def test_unchanged_database_has_stable_snapshot_fingerprint(review, tmp_path):
+    folder = tmp_path.parent / (tmp_path.name + "-backups")
+    snapshots = []
+    for _ in range(2):
+        result = create_backup(review.config.root, folder)
+        with zipfile.ZipFile(result["backup"]) as archive:
+            snapshots.append(json.loads(archive.read("backup-manifest.json"))["files"])
+    assert snapshots[0] == snapshots[1]

@@ -27,11 +27,11 @@ CONFIG = {
 
 def git(*args: str, root: Path | None = None) -> str:
     return subprocess.run(
-        ["git", *args], cwd=root or ROOT, text=True, capture_output=True, check=True
+        ["git", *args], cwd=root or ROOT, text=True, capture_output=True, check=True, timeout=60
     ).stdout.strip()
 
 
-def prepare_update(destination: Path, *, check: bool = False) -> dict:
+def prepare_update(destination: Path, *, check: bool = False, automatic: bool = False) -> dict:
     upstream = git("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}")
     remote, branch = upstream.split("/", 1)
     before = git("rev-parse", "HEAD")
@@ -40,6 +40,21 @@ def prepare_update(destination: Path, *, check: bool = False) -> dict:
     git("merge-base", "--is-ancestor", before, revision)
     if check or revision == before:
         return {"update_available": revision != before, "current": before, "available": revision}
+    if automatic:
+        changed = git(
+            "diff",
+            "--name-only",
+            before,
+            revision,
+            "--",
+            "protocol.yaml",
+            "workflow.yaml",
+            "src/slr_workbench/migrations",
+        )
+        if changed:
+            raise ValueError(
+                "Update changes protocol/workflow or database migrations; manual review is required."
+            )
     destination = destination.resolve()
     if destination.exists() or destination.is_relative_to(ROOT):
         raise ValueError("Update destination must be a new folder outside this project.")
@@ -136,12 +151,20 @@ def prepare_update(destination: Path, *, check: bool = False) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
+    parser.add_argument("--automatic", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--destination", type=Path)
     args = parser.parse_args()
     if not args.check and args.destination is None:
         parser.error("Provide --destination for a separate checkout, or --check")
     try:
-        print(json.dumps(prepare_update(args.destination or ROOT, check=args.check), indent=2))
+        print(
+            json.dumps(
+                prepare_update(
+                    args.destination or ROOT, check=args.check, automatic=args.automatic
+                ),
+                indent=2,
+            )
+        )
         return 0
     except (OSError, ValueError, subprocess.CalledProcessError) as error:
         print(

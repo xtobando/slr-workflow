@@ -1,5 +1,14 @@
 # Validation record — iteration 1
 
+## Automatic activation validation (2026-10-08)
+
+All **127 tests pass** locally, including stale-source/changed-candidate rejection,
+atomic routing failure, concurrent launcher rejection, stable database snapshot
+fingerprints, migration guards and refusal to roll back over newer work. A full
+isolated local-Git trial prepared, installed, tested and activated an update, then
+rolled back an unchanged review. The original commit and saved notes remained
+intact. Windows launcher execution is still not verified locally.
+
 ## Recovery and staged update validation (2026-10-07)
 
 All **119 tests pass** locally. Recovery tests include committed uncheckpointed WAL

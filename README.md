@@ -215,6 +215,15 @@ local unless you configure such storage; no archive is uploaded automatically.
 | Check upstream for updates | `bash workbench.sh update --check` |
 | Prepare a tested update separately | `bash workbench.sh update --destination "../updated-review"` |
 
+Git checkouts now prepare updates automatically after successful OpenCode sessions
+and activate a verified, unchanged candidate on the next startup. Keep using the
+original launcher: all commands follow the active version. If either review copy
+changes, activation is canceled to preserve that work. Protocol/workflow or SQL
+migration changes require manual review.
+
+Use `auto-update status`, `auto-update disable`, `auto-update enable` or
+`auto-update rollback` after the launcher. Rollback refuses if work has changed
+since activation; the old folder and backups remain available for recovery.
 Updates require a Git clone and never replace the active project in place.
 Close other writers before preparing an update. See the [recovery guide](docs/recovery.md)
 for off-device copies, snapshot coverage, exclusions, restore checks and switching

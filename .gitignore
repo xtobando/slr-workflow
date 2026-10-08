@@ -23,3 +23,5 @@ htmlcov/
 .uv-cache/
 
 update-validation.log
+
+.workbench-state/

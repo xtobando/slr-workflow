@@ -125,10 +125,56 @@ the old folder and backup for rollback. A future incompatible database migration
 must provide an explicit migration path; the updater does not invent one or
 approve a protocol amendment.
 
-For automatic **checking** at OpenCode startup, set `SLR_CHECK_UPDATES=1` in the
-terminal. A network failure is reported without blocking OpenCode. Installing
-updates remains an explicit `update --destination` command: there is no silent
-in-place replacement or unattended execution of downloaded updates.
+## Automatic updates through the stable launcher
+
+Automatic updates are enabled by default for Git checkouts. Keep using the
+**original** `workbench.sh` / `workbench.ps1`, even after switching versions.
+It becomes the stable entry point and routes every command to the active copy.
+Do not delete the original folder or its environment.
+
+After a successful OpenCode session exits, the launcher checks the Git upstream,
+backs up the saved review, prepares a separate candidate, installs dependencies,
+and runs tests/audit. This can take several minutes; progress and failures are in
+the candidate's `update-validation.log`. Network/test failures leave the current
+version active. ZIP checkouts remain usable, but cannot auto-update without a Git
+upstream. No machine-wide scheduler or background service is installed.
+
+On the next OpenCode startup, the launcher creates verified snapshots of both
+copies and compares them with the preparation fingerprints. Only an unchanged
+source and unchanged tested candidate are eligible. New work, edited files or
+altered candidates cancel activation; current work is retained and another update
+can be prepared after the session. Changes to upstream protocol/workflow files or
+SQL migrations stop automatic preparation for manual review. Approvals are never
+silently transferred to a different protocol revision.
+
+```sh
+bash workbench.sh auto-update status
+bash workbench.sh auto-update disable
+bash workbench.sh auto-update enable
+bash workbench.sh auto-update rollback
+```
+
+Windows uses `.\workbench.ps1` with the same arguments. `status` shows the active,
+pending and previous folders. `disable` leaves the active version in place and
+suspends preparation/activation. Rollback restores the previous route and disables
+auto-update, but only if neither copy has changed since activation. If work has
+continued, rollback refuses rather than discard it; use the backup/recovery path
+to migrate that latest data deliberately. Older folders and archives are retained,
+so monitor disk space.
+
+Launcher invocations are serialized while a session or update is running. An
+interrupted process can leave `.workbench-state/running.lock` in the original
+folder. Close all workbench/OpenCode processes before removing that directory and
+retrying. Never remove it while another session is active. Direct module commands,
+editors and launching a candidate's own wrapper bypass this coordination: do not
+write to either copy during switching. This is not protection against arbitrary
+external processes or failing storage.
+
+State is stored in `.workbench-state/state.json` in the original folder using
+atomic replacement. It is excluded from review backups: restored reviews start
+independently without routing into another installation. `SLR_CHECK_UPDATES=1`
+still requests an extra check at session startup; it is unnecessary for the new
+automatic preparation after successful sessions.
 
 ## Python command names
 

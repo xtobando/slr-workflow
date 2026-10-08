@@ -19,7 +19,7 @@ def main(argv: list[str] | None = None) -> int:
     if name in ("help", "--help", "-h"):
         print("Usage: workbench <SLR command> [arguments]")
         print(
-            "Helpers: opencode | configure | test | update | uv <arguments> | cli <arguments> | help"
+            "Helpers: opencode | configure | test | update | auto-update | uv <arguments> | cli <arguments> | help"
         )
         print("Example: workbench read-pdf paper.pdf")
         return 0
@@ -96,4 +96,8 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    if os.environ.get("SLR_ROUTED_LAUNCH") == "1":
+        raise SystemExit(main())
+    from auto_update import dispatch
+
+    raise SystemExit(dispatch(sys.argv[1:]))

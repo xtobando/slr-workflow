@@ -20,6 +20,7 @@ from .database import Database
 MANIFEST = "backup-manifest.json"
 EXCLUDED = {
     ".git",
+    ".workbench-state",
     ".venv",
     "__pycache__",
     ".pytest_cache",
@@ -105,7 +106,7 @@ def create_backup(root: Path, destination: Path | None = None) -> dict:
                 if (
                     name == ".env"
                     or name.startswith(".env.")
-                    or name in {".DS_Store", ".coverage"}
+                    or name in {".DS_Store", ".coverage", "update-validation.log"}
                     or name.endswith(".pyc")
                     or relative.as_posix()
                     in {db_relative.as_posix() + suffix for suffix in ("-wal", "-shm", "-journal")}

@@ -79,3 +79,21 @@ def test_failed_candidate_leaves_original_untouched(review, monkeypatch) -> None
         updater.prepare_update(candidate)
     assert review.db.verify_chain() == before
     assert not (candidate / review.config.protocol.paths.database).exists()
+
+
+def test_automatic_update_refuses_protocol_or_migration_changes(tmp_path, monkeypatch):
+    def changed(*args, **kwargs):
+        if args[:2] == ("rev-parse", "--abbrev-ref"):
+            return "origin/main"
+        if args == ("rev-parse", "HEAD"):
+            return "old"
+        if args == ("rev-parse", "FETCH_HEAD"):
+            return "new"
+        if args[0] == "diff":
+            return "src/slr_workbench/migrations/002_new.sql"
+        return ""
+
+    monkeypatch.setattr(updater, "git", changed)
+    with pytest.raises(ValueError, match="manual review"):
+        updater.prepare_update(tmp_path / "candidate", automatic=True)
+    assert not (tmp_path / "candidate").exists()
