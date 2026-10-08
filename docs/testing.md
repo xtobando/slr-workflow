@@ -1,5 +1,20 @@
 # Validation record — iteration 1
 
+## Recovery and staged update validation (2026-10-07)
+
+All **119 tests pass** locally. Recovery tests include committed uncheckpointed WAL
+data, restored customization, checksum failures, unsafe archive paths, disk-full
+simulation preserving earlier backups, and refusing to overwrite an existing
+restore destination. Launcher tests verify that failed backups prevent writes.
+Python discovery is tested with a `python3` executable and no versioned command.
+
+A full staged update succeeded against isolated local Git repositories: the
+candidate installed dependencies, ran tests, preserved saved notes and left the
+original commit and working review unchanged. Failure-path tests verify that
+failed candidate checks do not copy the review database into the candidate.
+This does not establish protection against every hardware failure, nor Windows
+runtime compatibility; platform CI results must be checked separately.
+
 ## PDF reader and launcher validation (2026-10-07)
 
 All **110 tests pass** locally with the `pdf` extra on macOS/Python 3.12.15.

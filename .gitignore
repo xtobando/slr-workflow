@@ -21,3 +21,5 @@ opencode.previous.json
 .coverage
 htmlcov/
 .uv-cache/
+
+update-validation.log

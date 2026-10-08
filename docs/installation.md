@@ -36,7 +36,7 @@ xcode-select --install
 
 Install Python 3.12 using the signed macOS installer from
 [python.org](https://www.python.org/downloads/release/python-31210/).
-Verify `python3.12 --version`. Finish the installation dialogs before continuing. Install the pinned uv version
+Verify `python3 --version` reports 3.12. If it does not, use the setup script to find a compatible installed interpreter. Finish the installation dialogs before continuing. Install the pinned uv version
 and the OpenCode V2 version used for the project's compatibility check:
 
 ```sh
@@ -169,7 +169,8 @@ first; an existing uv-managed environment will not change its base interpreter.
 macOS/Linux:
 
 ```sh
-python3.12 -m venv .venv
+python3 -c "import sys; assert sys.version_info[:2] == (3, 12), 'Select Python 3.12 first'"
+python3 -m venv .venv
 uv sync --locked --extra pdf --extra dev --python .venv/bin/python
 ```
 

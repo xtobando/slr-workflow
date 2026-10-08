@@ -3,10 +3,21 @@ $ErrorActionPreference = "Stop"
 $Setup = Join-Path $PSScriptRoot "setup.py"
 if ($PythonPath) {
     & $PythonPath $Setup
-} elseif (Get-Command py -ErrorAction SilentlyContinue) {
-    & py -3.12 $Setup
-} else {
-    Write-Error 'Install Python 3.12 from python.org with the launcher, or pass -PythonPath pointing to its python.exe. See README.'
-    exit 1
+    exit $LASTEXITCODE
 }
-exit $LASTEXITCODE
+if ($env:SLR_PYTHON) {
+    & $env:SLR_PYTHON $Setup
+    exit $LASTEXITCODE
+}
+foreach ($Candidate in @("python3", "python", "py")) {
+    if (-not (Get-Command $Candidate -ErrorAction SilentlyContinue)) { continue }
+    $Prefix = @()
+    if ($Candidate -eq "py") { $Prefix = @("-3.12") }
+    & $Candidate @Prefix -c "import sys; sys.exit(sys.version_info[:2] != (3, 12))" 2>$null
+    if ($LASTEXITCODE -eq 0) {
+        & $Candidate @Prefix $Setup
+        exit $LASTEXITCODE
+    }
+}
+Write-Error 'Python 3.12 was not found. Install it or pass -PythonPath pointing to its executable. See docs/installation.md.'
+exit 1

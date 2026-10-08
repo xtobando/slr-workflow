@@ -18,7 +18,9 @@ def main(argv: list[str] | None = None) -> int:
     interpreter = ROOT / ".venv" / suffix
     if name in ("help", "--help", "-h"):
         print("Usage: workbench <SLR command> [arguments]")
-        print("Helpers: opencode | configure | test | uv <arguments> | cli <arguments> | help")
+        print(
+            "Helpers: opencode | configure | test | update | uv <arguments> | cli <arguments> | help"
+        )
         print("Example: workbench read-pdf paper.pdf")
         return 0
     if not interpreter.is_file():
@@ -38,6 +40,8 @@ def main(argv: list[str] | None = None) -> int:
         command = [executable, *args]
     elif name == "cli":
         command = [str(interpreter), "-m", "slr_workbench", *args]
+    elif name == "update":
+        command = [str(interpreter), "scripts/update.py", *args]
     elif name == "configure":
         command = [str(interpreter), "scripts/select_opencode_config.py", *args]
     elif name == "test":
@@ -53,7 +57,39 @@ def main(argv: list[str] | None = None) -> int:
     else:
         command = [str(interpreter), "-m", "slr_workbench", name, *args]
     try:
-        return subprocess.run(command, cwd=ROOT, env=env, check=False).returncode
+        protected = {
+            "opencode",
+            "init",
+            "approve-protocol",
+            "import-records",
+            "deduplicate",
+            "submit",
+            "review",
+            "attach",
+            "retrieval",
+            "link-study",
+            "unlink-study",
+            "convert",
+            "configure",
+        }
+        action = args[0] if name == "cli" and args else name
+        automatic = action in protected and env.get("SLR_AUTO_BACKUP", "1") != "0"
+        backup_command = [str(interpreter), "-m", "slr_workbench", "backup"]
+        if automatic and subprocess.run(backup_command, cwd=ROOT, env=env, check=False).returncode:
+            print("Pre-operation backup failed; command was not started.", file=sys.stderr)
+            return 1
+        if name == "opencode" and env.get("SLR_CHECK_UPDATES") == "1":
+            subprocess.run(
+                [str(interpreter), "scripts/update.py", "--check"], cwd=ROOT, env=env, check=False
+            )
+        result = subprocess.run(command, cwd=ROOT, env=env, check=False).returncode
+        if automatic and subprocess.run(backup_command, cwd=ROOT, env=env, check=False).returncode:
+            print(
+                "The operation finished, but its follow-up backup failed. Keep the project and retry backup.",
+                file=sys.stderr,
+            )
+            return result or 1
+        return result
     except OSError as error:
         print(f"Could not start command: {error}", file=sys.stderr)
         return 1

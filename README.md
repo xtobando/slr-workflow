@@ -27,7 +27,9 @@ If PowerShell scripts are blocked, run `py -3.12 scripts/setup.py` instead.
 For a specific Windows interpreter, use
 `powershell -File scripts/setup.ps1 -PythonPath "C:\path\to\python.exe"`.
 
-Setup installs pinned uv locally, creates `.venv`, installs locked dependencies
+Setup detects an available Python command and verifies version 3.12; it does not
+require the executable to be named `python3.12`. Set `SLR_PYTHON` to select an
+explicit interpreter path. Setup installs pinned uv locally, creates `.venv`, installs locked dependencies
 including the lightweight PDF reader and pytest, and checks the project. No global
 uv installation or environment activation is required. Compatible environments
 and optional packages are retained; incompatible environments cause setup to stop
@@ -197,6 +199,27 @@ quality and Windows Defender compatibility are not established by core tests.
 | Empty or incomplete PDF text | Check manifest warnings and original pages; obtain OCR/text for scans. |
 | Scientific command blocked | Check `status` and complete the required human approvals. |
 | Defender blocks a file | Use the migration guide and record the exact detection/path; no setup command disables Defender. |
+
+## Backups and updates
+
+The launcher now makes verified backups before and after OpenCode sessions and
+review-writing commands. Default location: a `PROJECT-backups` folder beside the
+project. Set `SLR_BACKUP_DIR` to use another drive or a synced folder. Backups stay
+local unless you configure such storage; no archive is uploaded automatically.
+
+| Task | macOS/Linux command (Windows: replace `bash workbench.sh` with `.\workbench.ps1`) |
+| --- | --- |
+| Back up now | `bash workbench.sh backup` |
+| Verify an archive | `bash workbench.sh backup-verify "/path/to/backup.zip"` |
+| Restore into a new folder | `bash workbench.sh restore "/path/to/backup.zip" "../recovered-review"` |
+| Check upstream for updates | `bash workbench.sh update --check` |
+| Prepare a tested update separately | `bash workbench.sh update --destination "../updated-review"` |
+
+Updates require a Git clone and never replace the active project in place.
+Close other writers before preparing an update. See the [recovery guide](docs/recovery.md)
+for off-device copies, snapshot coverage, exclusions, restore checks and switching
+to an updated copy. Snapshot boundaries do not protect unsaved work or every action
+inside a long-running session; keep periodic backups and a separate storage copy.
 
 ## Files, backups and further reading
 

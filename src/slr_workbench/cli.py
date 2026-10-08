@@ -6,6 +6,7 @@ import argparse
 import json
 import sqlite3
 import sys
+import zipfile
 from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Any
@@ -30,7 +31,7 @@ def execute(operation: Callable[[], Any]) -> None:
         result = operation()
         if result is not None:
             print(json.dumps(result, indent=2, ensure_ascii=False, default=str))
-    except (ValueError, TypeError, OSError, sqlite3.Error) as error:
+    except (ValueError, TypeError, KeyError, OSError, sqlite3.Error, zipfile.BadZipFile) as error:
         print(f"Error: {error}", file=sys.stderr)
         raise SystemExit(1) from error
 
@@ -328,6 +329,18 @@ def build_parser() -> argparse.ArgumentParser:
         sub.set_defaults(handler=handler)
         return sub
 
+    sub = commands.add_parser("backup", help="Create a verified recovery archive.")
+    sub.add_argument("--destination", type=Path)
+    sub.set_defaults(handler=None)
+    sub = commands.add_parser("backup-verify", help="Verify a recovery archive.")
+    sub.add_argument("archive", type=Path)
+    sub.set_defaults(handler=None)
+    sub = commands.add_parser(
+        "restore", help="Restore into a new folder, never overwrite a review."
+    )
+    sub.add_argument("archive", type=Path)
+    sub.add_argument("destination", type=Path)
+    sub.set_defaults(handler=None)
     sub = commands.add_parser(
         "read-pdf", help="Read any PDF as Markdown without changing review state."
     )
@@ -403,6 +416,16 @@ def app(argv: Sequence[str] | None = None) -> None:
         raise SystemExit(2)
     handler = args.pop("handler")
     project = args.pop("project")
+    if selected in {"backup", "backup-verify", "restore"}:
+        from .backups import create_backup, restore_backup, verify_backup
+
+        if selected == "backup":
+            execute(lambda: create_backup(project, args["destination"]))
+        elif selected == "backup-verify":
+            execute(lambda: verify_backup(args["archive"]))
+        else:
+            execute(lambda: restore_backup(args["archive"], args["destination"]))
+        return
     if selected == "read-pdf":
         from .pdf_reader import read_pdf
 

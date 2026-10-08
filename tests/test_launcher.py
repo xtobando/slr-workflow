@@ -38,3 +38,22 @@ def test_launcher_missing_environment_is_actionable(tmp_path, monkeypatch, capsy
     monkeypatch.setattr(launcher, "ROOT", tmp_path)
     assert launcher.main(["status"]) == 1
     assert "setup" in capsys.readouterr().err
+
+
+def test_backup_failure_prevents_operation(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.setattr(launcher, "ROOT", tmp_path)
+    monkeypatch.delenv("SLR_AUTO_BACKUP", raising=False)
+    suffix = "Scripts/python.exe" if os.name == "nt" else "bin/python"
+    interpreter = tmp_path / ".venv" / suffix
+    interpreter.parent.mkdir(parents=True)
+    interpreter.touch()
+    calls = []
+
+    def fail_backup(command, **options):
+        calls.append(command)
+        return subprocess.CompletedProcess(command, 1)
+
+    monkeypatch.setattr(launcher.subprocess, "run", fail_backup)
+    assert launcher.main(["submit", "draft.json"]) == 1
+    assert len(calls) == 1 and calls[0][-1] == "backup"
+    assert "not started" in capsys.readouterr().err

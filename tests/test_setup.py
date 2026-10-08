@@ -64,3 +64,26 @@ def test_failed_install_does_not_report_success(monkeypatch, capsys) -> None:
     output = capsys.readouterr()
     assert "Core setup complete" not in output.out
     assert "Setup stopped" in output.err
+
+
+def test_bash_setup_accepts_python3_without_versioned_executable(tmp_path: Path) -> None:
+    import os
+
+    if os.name == "nt":
+        pytest.skip("Bash discovery test; PowerShell is exercised in CI")
+    executable = tmp_path / "python3"
+    executable.write_text(
+        '#!/bin/sh\nif [ "$1" = "-c" ]; then exit 0; fi\necho selected-python3\nexit 9\n'
+    )
+    executable.chmod(0o755)
+    env = dict(os.environ, PATH=str(tmp_path) + ":/usr/bin:/bin")
+    env.pop("SLR_PYTHON", None)
+    result = subprocess.run(
+        ["/bin/bash", str(setup.ROOT / "scripts/setup.sh")],
+        env=env,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode == 9
+    assert "selected-python3" in result.stdout
