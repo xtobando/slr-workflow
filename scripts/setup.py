@@ -72,7 +72,19 @@ def main() -> int:
             UV_PYTHON_PREFERENCE="only-system",
         )
         run(
-            [str(bootstrap), "-m", "uv", "sync", "--locked", "--inexact", "--extra", "dev"], env=env
+            [
+                str(bootstrap),
+                "-m",
+                "uv",
+                "sync",
+                "--locked",
+                "--inexact",
+                "--extra",
+                "dev",
+                "--extra",
+                "pdf",
+            ],
+            env=env,
         )
         run([str(interpreter), "scripts/validate_project.py"])
         run([str(interpreter), "-m", "slr_workbench", "--help"])
@@ -80,13 +92,15 @@ def main() -> int:
         print(f"Setup stopped: {error}", file=sys.stderr)
         return 1
     print("\nCore setup complete. Existing optional packages were preserved.")
-    print("Continue at README step 4 for the editor, then step 5 for OpenCode and model login.")
-    prefix = ".\\.venv-setup\\Scripts\\python.exe" if os.name == "nt" else ".venv-setup/bin/python"
-    print(f"Use '{prefix} -m uv' wherever the README says 'uv'.")
+    prefix = ".\\workbench.ps1" if os.name == "nt" else "bash workbench.sh"
+    print(f"Run checks: {prefix} test -q")
+    print(f"Read a PDF: {prefix} read-pdf path/to/paper.pdf")
     if shutil.which("opencode"):
-        print(f"Start OpenCode: {prefix} -m uv run --no-sync opencode")
+        print(f"Select the OpenCode profile: {prefix} configure")
+        print(f"Start OpenCode: {prefix} opencode")
     else:
-        print("OpenCode was not found. Install it using README step 1, then reopen the terminal.")
+        print("OpenCode is not on PATH. Follow docs/installation.md, then reopen the terminal.")
+    print("Next: README.md — Connect a model and Prepare your review.")
     print(
         "Protocol approval and research decisions must be completed by you in a separate terminal."
     )

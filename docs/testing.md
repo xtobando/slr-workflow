@@ -1,6 +1,18 @@
 # Validation record — iteration 1
 
-## Guided setup validation
+## PDF reader and launcher validation (2026-10-07)
+
+All **110 tests pass** locally with the `pdf` extra on macOS/Python 3.12.15.
+New coverage uses synthetic PDFs to check text/page extraction, missingness,
+encrypted/invalid inputs and preservation of existing conversions. Launcher tests
+check argument boundaries, inherited terminal input and failure propagation.
+Project configuration, skill metadata, Bash syntax and Ruff checks pass.
+Guided setup and an offline rerun both succeeded in an isolated clean source
+checkout; its Bash launcher successfully ran the tests from outside the checkout.
+The scientific configuration revision is unchanged. Windows/PowerShell execution,
+OCR, Docling and Chroma remain unverified locally; CI includes the PDF extra.
+
+## Earlier guided setup validation
 
 The suite now passes **103 tests** locally. Setup tests cover preservation of
 incomplete/incompatible environments, locked installation with existing extras

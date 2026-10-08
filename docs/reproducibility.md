@@ -24,12 +24,12 @@ another option; use `python3` on macOS/Linux or `py` on Windows as appropriate.
 Ensure the installer places `uv` on your PATH.
 
 Install Python 3.12 separately and create `.venv` as described in
-[README step 3](../README.md#3-install-python-and-the-workbench). uv is configured
+[manual installation](installation.md#3-install-python-and-the-workbench). uv is configured
 not to download managed Python. Record the exact patch version and distribution;
 `.python-version` selects a minor version, not a bit-identical interpreter.
 
 ```sh
-uv sync --locked --extra dev --extra lint
+uv sync --locked --extra pdf --extra dev --extra lint
 uv run --no-sync python scripts/validate_project.py
 uv run --no-sync python -m ruff check src scripts tests
 uv run --no-sync python -m pytest -q
@@ -48,7 +48,7 @@ The tests create temporary synthetic projects and never approve or modify your
 real review. Run real approval commands yourself in a separate terminal.
 
 `uv.lock` records all dependency resolutions, including optional adapters, while
-`uv sync --locked --extra dev` installs only the core and development extra.
+`uv sync --locked --extra pdf --extra dev` installs the core, PDF reader and development extra.
 Optional adapters can reintroduce Pydantic, Typer and native dependencies.
 The core does not depend on them. The build backend is pinned in `pyproject.toml`. CI actions are pinned by commit.
 Install Python separately; the initial dependency sync needs network access. Repeating the
@@ -68,7 +68,7 @@ Edit version constraints in `pyproject.toml` when needed, then deliberately upda
 
 ```sh
 uv lock --upgrade
-uv sync --locked --extra dev
+uv sync --locked --extra pdf --extra dev
 ```
 
 Run the checks above and commit `pyproject.toml` and `uv.lock` together. Update

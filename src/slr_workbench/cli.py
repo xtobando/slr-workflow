@@ -328,6 +328,12 @@ def build_parser() -> argparse.ArgumentParser:
         sub.set_defaults(handler=handler)
         return sub
 
+    sub = commands.add_parser(
+        "read-pdf", help="Read any PDF as Markdown without changing review state."
+    )
+    sub.add_argument("pdf", type=Path)
+    sub.add_argument("--output-dir", type=Path)
+    sub.set_defaults(handler=None)
     command("init", initialize)
     sub = command("approve-protocol", approve_protocol)
     sub.add_argument("--reviewer", required=True)
@@ -391,11 +397,17 @@ def app(argv: Sequence[str] | None = None) -> None:
     """Shared entry point for the optional slr launcher and python -m slr_workbench."""
     parser = build_parser()
     args = vars(parser.parse_args(argv))
-    if args.pop("command") is None:
+    selected = args.pop("command")
+    if selected is None:
         parser.print_help()
         raise SystemExit(2)
     handler = args.pop("handler")
     project = args.pop("project")
+    if selected == "read-pdf":
+        from .pdf_reader import read_pdf
+
+        execute(lambda: read_pdf(args["pdf"], args["output_dir"] or project / "data" / "reading"))
+        return
     try:
         current = ReviewService(load_configuration(project))
     except (ValueError, TypeError, OSError) as error:

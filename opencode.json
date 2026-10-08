@@ -228,6 +228,11 @@
       "action": "shell",
       "resource": "python* -m slr_workbench*unlink-study*",
       "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "python -m slr_workbench read-pdf*",
+      "effect": "allow"
     }
   ]
 }

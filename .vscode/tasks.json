@@ -2,12 +2,11 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "SLR: Install locked core",
+      "label": "SLR: Guided setup",
       "type": "process",
-      "command": "uv",
+      "command": "${command:python.interpreterPath}",
       "args": [
-        "sync",
-        "--locked"
+        "scripts/setup.py"
       ],
       "options": {
         "cwd": "${workspaceFolder}"
@@ -184,7 +183,7 @@
     {
       "label": "SLR: OpenCode",
       "type": "process",
-      "command": "uv",
+      "command": "${command:python.interpreterPath}",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -194,10 +193,23 @@
       },
       "problemMatcher": [],
       "args": [
-        "run",
-        "--no-sync",
+        "scripts/workbench.py",
         "opencode"
       ]
+    },
+    {
+      "label": "SLR: Read PDF",
+      "type": "process",
+      "command": "${command:python.interpreterPath}",
+      "args": [
+        "scripts/workbench.py",
+        "read-pdf",
+        "${input:pdfPath}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
     }
   ],
   "inputs": [
@@ -210,6 +222,11 @@
       "id": "proposalId",
       "type": "promptString",
       "description": "Proposal ID returned by slr submit"
+    },
+    {
+      "id": "pdfPath",
+      "type": "promptString",
+      "description": "Local PDF path (relative to project root or absolute)"
     }
   ]
 }

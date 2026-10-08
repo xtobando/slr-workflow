@@ -60,7 +60,8 @@
       "python* -m slr_workbench*retrieval*": "deny",
       "python* -m slr_workbench*link-study*": "deny",
       "slr unlink-study*": "deny",
-      "python* -m slr_workbench*unlink-study*": "deny"
+      "python* -m slr_workbench*unlink-study*": "deny",
+      "python -m slr_workbench read-pdf*": "allow"
     }
   }
 }

@@ -32,11 +32,13 @@ jobs:
         shell: bash
         run: python -c "import os,sys; open(os.environ['GITHUB_ENV'], 'a').write('UV_PYTHON=' + sys.executable + '\n')"
       - name: Install locked core and development dependencies
-        run: uv sync --locked --extra dev --extra lint
+        run: uv sync --locked --extra pdf --extra dev --extra lint
       - name: Exercise guided setup on macOS and Linux
         if: matrix.python == '3.12' && runner.os != 'Windows'
         shell: bash
-        run: bash scripts/setup.sh
+        run: |
+          bash scripts/setup.sh
+          bash workbench.sh cli --help
       - name: Validate project configuration
         run: uv run --no-sync python scripts/validate_project.py
       - name: Lint
@@ -79,7 +81,14 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           ./scripts/setup.ps1 -PythonPath $env:UV_PYTHON
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - run: uv sync --locked --extra dev
+      - name: Exercise the Windows project launcher
+        shell: pwsh
+        run: |
+          ./workbench.ps1 cli --help
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./workbench.ps1 test -q
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - run: uv sync --locked --extra pdf --extra dev
       - run: uv run --no-sync python -m slr_workbench --help
       - run: uv run --no-sync python scripts/validate_project.py
       - run: uv run --no-sync python -m pytest -q
