@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04, macos-15, windows-2022]
-        python: ["3.11", "3.12"]
+        python: ["3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -34,11 +34,17 @@ jobs:
       - name: Install locked core and development dependencies
         run: uv sync --locked --extra pdf --extra dev --extra lint
       - name: Exercise guided setup on macOS and Linux
-        if: matrix.python == '3.12' && runner.os != 'Windows'
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           bash scripts/setup.sh
           bash workbench.sh cli --help
+      - name: Exercise guided setup on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          ./scripts/setup.ps1 -PythonPath $env:UV_PYTHON
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Validate project configuration
         run: uv run --no-sync python scripts/validate_project.py
       - name: Lint

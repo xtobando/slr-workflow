@@ -8,28 +8,31 @@ The example protocol is synthetic. Customize it before using real papers.
 
 ## Install
 
-You need **Python 3.12** installed separately, an internet connection for initial
+You need **Python 3.11 or newer** installed separately, an internet connection for initial
 downloads, and **OpenCode** for model-assisted work. Use Python from python.org on
-Windows/macOS; Linux users can use a distribution-provided Python 3.12 with venv
+Windows/macOS; Linux users can use a distribution-provided Python 3.11+ with venv
 support. See [platform installation commands](docs/installation.md#1-install-tools-for-your-platform)
 for Python and OpenCode. Git and VS Code are optional.
 
 1. On GitHub choose **Code → Download ZIP**, then extract the entire archive.
    Alternatively, clone this repository.
-2. Open a terminal in the extracted project folder.
+2. Open a terminal in the extracted project folder containing `README.md` and
+   `scripts/`. ZIP extraction may create an extra outer folder; on Windows,
+   `Test-Path .\scripts\setup.ps1` should return `True`.
 3. Run the setup command for your platform:
 
 | Windows PowerShell | macOS / Linux Terminal |
 | --- | --- |
 | `powershell -File scripts/setup.ps1` | `bash scripts/setup.sh` |
 
-If PowerShell scripts are blocked, run `py -3.12 scripts/setup.py` instead.
+If PowerShell scripts are blocked, run `py -3 scripts/setup.py` instead.
 For a specific Windows interpreter, use
 `powershell -File scripts/setup.ps1 -PythonPath "C:\path\to\python.exe"`.
 
-Setup detects an available Python command and verifies version 3.12; it does not
-require the executable to be named `python3.12`. Set `SLR_PYTHON` to select an
-explicit interpreter path. Setup installs pinned uv locally, creates `.venv`, installs locked dependencies
+Setup detects an available Python command and verifies Python 3.11 or newer; it does not
+require a specific minor version or executable name. Set `SLR_PYTHON` to select an
+explicit interpreter path. The `.python-version` file is a development default;
+guided setup uses the compatible interpreter it discovers. Setup installs pinned uv locally, creates `.venv`, installs locked dependencies
 including the lightweight PDF reader and pytest, and checks the project. No global
 uv installation or environment activation is required. Compatible environments
 and optional packages are retained; incompatible environments cause setup to stop
@@ -192,7 +195,7 @@ quality and Windows Defender compatibility are not established by core tests.
 
 | Problem | Next step |
 | --- | --- |
-| Python 3.12 not found | Install it separately using the [platform guide](docs/installation.md#1-install-tools-for-your-platform). |
+| Python 3.11+ not found | Install it separately using the [platform guide](docs/installation.md#1-install-tools-for-your-platform). |
 | Existing environment uses another Python | Follow the [environment migration guide](docs/windows-setup.md); setup will not replace it automatically. |
 | OpenCode not found | Install OpenCode, reopen the terminal, run `configure`, then `opencode`. |
 | PDF reader missing | Rerun guided setup to install the locked `pdf` extra. |

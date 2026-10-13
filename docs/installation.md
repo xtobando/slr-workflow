@@ -9,14 +9,14 @@ This reference includes manual setup, optional adapters and the synthetic walkth
 | --- | --- | --- |
 | Git | Download and update the project | Yes for the clone instructions |
 | uv 0.12.23 | Install locked dependencies | Yes for this tutorial |
-| Python 3.12 | Run the workbench | Install separately; python.org on Windows/macOS |
+| Python 3.11+ | Run the workbench | Install separately; python.org on Windows/macOS |
 | OpenCode | Run the agent and stage skills | Yes for AI-assisted review |
 | VS Code and PDF Viewer | Edit configuration and inspect original PDFs | Optional |
 | Docling | Convert PDFs into Markdown and structured text | Optional |
 | Chroma and embedding model | Search included papers semantically | Optional |
 
 The Python core requires Python 3.11 or newer. The repository pins its default
-Python minor version in `.python-version`, uv in `pyproject.toml`, and dependencies in `uv.lock`.
+Python minor version in `.python-version` (a default, not a setup requirement), uv in `pyproject.toml`, and dependencies in `uv.lock`.
 No direct LLM API client or OpenRouter dependency is required by the Python core.
 An internet connection is needed for the initial downloads and hosted providers.
 
@@ -34,9 +34,9 @@ Install Git through Apple's command-line tools if `git --version` fails:
 xcode-select --install
 ```
 
-Install Python 3.12 using the signed macOS installer from
-[python.org](https://www.python.org/downloads/release/python-31210/).
-Verify `python3 --version` reports 3.12. If it does not, use the setup script to find a compatible installed interpreter. Finish the installation dialogs before continuing. Install the pinned uv version
+Install Python 3.11 or newer using the signed macOS installer from
+[python.org](https://www.python.org/downloads/).
+Verify `python3 --version` reports 3.11 or newer. If it does not, use the setup script to find a compatible installed interpreter. Finish the installation dialogs before continuing. Install the pinned uv version
 and the OpenCode V2 version used for the project's compatibility check:
 
 ```sh
@@ -77,19 +77,16 @@ uv --version
 opencode --version
 ```
 
-On another distribution, install Python 3.12 with venv support (from the distribution
+On another distribution, install Python 3.11 or newer with venv support (from the distribution
 or build an official python.org source release), Git, curl, CA certificates and tar with its
 package manager before running the two installers. For optional VS Code setup,
 follow the [Linux installation guide](https://code.visualstudio.com/docs/setup/linux).
 
 ### Windows — PowerShell
 
-First install Python 3.12 from the official
-[python.org release page](https://www.python.org/downloads/release/python-31210/),
-including the Python launcher. Verify `py -3.12 --version`. Python 3.12.10 is the
-last 3.12 release with official Windows/macOS installers; later 3.12 security
-releases are source-only. This installer choice is not a claim that 3.12.10
-contains later security fixes.
+Use an existing Python 3.11 or newer, or install a supported version from the official
+[python.org downloads page](https://www.python.org/downloads/), including the
+Python launcher. Verify `py -3 --version`. A specific 3.12 release is not required.
 
 Install Git and, optionally, VS Code using Windows Package Manager:
 
@@ -169,7 +166,7 @@ first; an existing uv-managed environment will not change its base interpreter.
 macOS/Linux:
 
 ```sh
-python3 -c "import sys; assert sys.version_info[:2] == (3, 12), 'Select Python 3.12 first'"
+python3 -c "import sys; assert sys.version_info[:2] >= (3, 11), 'Select Python 3.11 or newer first'"
 python3 -m venv .venv
 uv sync --locked --extra pdf --extra dev --python .venv/bin/python
 ```
@@ -177,7 +174,7 @@ uv sync --locked --extra pdf --extra dev --python .venv/bin/python
 Windows PowerShell:
 
 ```powershell
-py -3.12 -m venv .venv
+py -3 -m venv .venv
 uv sync --locked --extra pdf --extra dev --python .venv\Scripts\python.exe
 ```
 
@@ -490,7 +487,7 @@ pushing the source repository does not back up the review database or PDFs.
 | `uv`, `git`, `opencode` or `code` not found | Reopen the terminal after installation and check the appropriate platform's PATH instructions. `code` is optional. |
 | Wrong uv version | Reinstall uv 0.12.23 using step 1; the project enforces that version. |
 | `slr` not found | Use `uv run --no-sync python -m slr_workbench ...` from the project root after syncing. |
-| Python 3.9 or missing Python packages | Create `.venv` with the installed Python 3.12 as in step 3, then sync dependencies. |
+| Python 3.9 or missing Python packages | Create `.venv` with the installed Python 3.11 or newer as in step 3, then sync dependencies. |
 | Configuration changed / approval required | Run `slr init` through uv, inspect the changes and approve the new revision yourself. |
 | Unsupported OpenCode version | Check `opencode --version`. Profiles support V1/V2; override with `--major 1` or `--major 2` only after verifying the installed major version. |
 | No model available | Connect an available provider with `/connect`, then choose from `/models`. |

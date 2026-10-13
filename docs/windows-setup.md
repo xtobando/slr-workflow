@@ -1,21 +1,21 @@
 # Windows: migrate to an installed Python
 
-This setup uses Python from [python.org](https://www.python.org/downloads/release/python-31210/)
-and uv for dependencies. Python 3.12.10 is the last 3.12 release with official
-Windows installers; later security releases are source-only. Choose an installer
-matching the machine. Include the Python launcher. This changes the distribution
-providing Python's DLLs; it does not establish that Defender will allow every file.
+This setup accepts an installed Python 3.11 or newer and uses uv for dependencies.
+If you need a different installation, use [python.org](https://www.python.org/downloads/)
+and choose an installer matching your machine. Include the Python launcher.
+Changing the distribution providing Python's DLLs does not establish that
+Defender will allow every file.
 
 Run the following in PowerShell from the project root. Close running OpenCode,
 Python processes and terminals using the old environment first. Open a new terminal
 without the old environment activated.
 
 ```powershell
-py -3.12 -c "import sys; print(sys.version); print(sys.executable); print(sys.base_prefix)"
+py -3 -c "import sys; print(sys.version); print(sys.executable); print(sys.base_prefix)"
 ```
 
 Verify this is the python.org installation, not a path under uv's managed Python
-folder. If multiple distributions are installed, replace `py -3.12` below with
+folder. If multiple distributions are installed, replace `py -3` below with
 `& 'C:\actual\path\to\python.exe'` for the verified official installation.
 
 Preserve the existing environment, then create its replacement:
@@ -25,7 +25,7 @@ if (Test-Path .venv) {
     if (Test-Path .venv-before-migration) { throw 'Choose another backup name first' }
     Rename-Item .venv .venv-before-migration
 }
-py -3.12 -m venv .venv
+py -3 -m venv .venv
 uv sync --locked --extra dev --python .venv\Scripts\python.exe
 .\.venv\Scripts\python.exe -m slr_workbench --help
 .\.venv\Scripts\python.exe scripts/validate_project.py

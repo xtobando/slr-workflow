@@ -1,4 +1,4 @@
-"""Prepare a local core environment using an already-installed Python 3.12."""
+"""Prepare a local core environment using an already-installed Python 3.11 or newer."""
 
 from __future__ import annotations
 
@@ -7,7 +7,6 @@ import os
 import shutil
 import subprocess
 import sys
-import tomllib
 import venv
 from pathlib import Path
 
@@ -39,7 +38,7 @@ def prepare(directory: Path) -> Path:
             check=True,
         )
         version, base = json.loads(result.stdout)
-        if version != [3, 12] or Path(base).resolve() != Path(sys.base_prefix).resolve():
+        if version != list(sys.version_info[:2]) or Path(base).resolve() != Path(sys.base_prefix).resolve():
             raise ValueError(
                 f"{directory.name} uses another Python. Preserve/rename it first; "
                 "see docs/windows-setup.md. Setup will not replace it."
@@ -50,12 +49,14 @@ def prepare(directory: Path) -> Path:
 
 
 def main() -> int:
-    if sys.version_info[:2] != (3, 12):
+    if sys.version_info[:2] < (3, 11):  # noqa: UP036 -- setup can run before installation
         print(
-            "Setup requires an installed Python 3.12. See README platform instructions.",
+            "Setup requires an installed Python 3.11 or newer. See README platform instructions.",
             file=sys.stderr,
         )
         return 1
+    import tomllib
+
     print(f"Using Python: {sys.executable}\nBase installation: {sys.base_prefix}", flush=True)
     try:
         # Check the review environment before installing anything else.

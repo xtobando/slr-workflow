@@ -39,8 +39,9 @@ def test_different_python_is_not_replaced(tmp_path: Path, monkeypatch) -> None:
     assert interpreter.read_text() == "existing interpreter"
 
 
-def test_setup_sync_preserves_extras_and_avoids_decisions(monkeypatch, capsys) -> None:
-    monkeypatch.setattr(setup.sys, "version_info", (3, 12))
+@pytest.mark.parametrize("version", [(3, 11), (3, 12), (3, 13), (3, 14)])
+def test_setup_sync_preserves_extras_and_avoids_decisions(monkeypatch, capsys, version) -> None:
+    monkeypatch.setattr(setup.sys, "version_info", version)
     monkeypatch.setattr(setup, "prepare", lambda directory: setup.python_in(directory))
     calls = []
     monkeypatch.setattr(setup, "run", lambda args, **kwargs: calls.append((args, kwargs)))
@@ -87,3 +88,35 @@ def test_bash_setup_accepts_python3_without_versioned_executable(tmp_path: Path)
     )
     assert result.returncode == 9
     assert "selected-python3" in result.stdout
+
+
+@pytest.mark.parametrize("version", [(3, 9), (3, 10)])
+def test_unsupported_python_stops_before_creating_environments(monkeypatch, capsys, version):
+    monkeypatch.setattr(setup.sys, "version_info", version)
+
+    def unexpected_prepare(directory):
+        pytest.fail("Unsupported Python must not create or modify environments")
+
+    monkeypatch.setattr(setup, "prepare", unexpected_prepare)
+    assert setup.main() == 1
+    assert "3.11 or newer" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("version", [(3, 11), (3, 13)])
+def test_matching_non_312_environment_is_reused(tmp_path, monkeypatch, version):
+    import json
+
+    environment = tmp_path / ".venv"
+    interpreter = setup.python_in(environment)
+    interpreter.parent.mkdir(parents=True)
+    interpreter.write_text("keep existing interpreter")
+    monkeypatch.setattr(setup.sys, "version_info", version)
+    monkeypatch.setattr(
+        setup.subprocess,
+        "run",
+        lambda *a, **kw: subprocess.CompletedProcess(
+            a, 0, stdout=json.dumps([list(version), setup.sys.base_prefix])
+        ),
+    )
+    assert setup.prepare(environment) == interpreter
+    assert interpreter.read_text() == "keep existing interpreter"
