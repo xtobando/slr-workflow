@@ -8,14 +8,18 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(os.environ.get("SLR_PROJECT_ROOT", Path(__file__).resolve().parents[1])).resolve()
 
 
 def main(argv: list[str] | None = None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
     name = args.pop(0) if args else "help"
+    if os.environ.get("SLR_CONTAINER") == "1" and name in {"update", "auto-update"}:
+        print("Container updates use a refreshed checkout and docker compose build, not staged updates.", file=sys.stderr)
+        return 1
     suffix = "Scripts/python.exe" if os.name == "nt" else "bin/python"
-    interpreter = ROOT / ".venv" / suffix
+    environment = Path(os.environ.get("SLR_ENVIRONMENT", ROOT / ".venv"))
+    interpreter = environment / suffix
     if name in ("help", "--help", "-h"):
         print("Usage: workbench <SLR command> [arguments]")
         print(
@@ -30,7 +34,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 1
     env = dict(os.environ)
-    env["VIRTUAL_ENV"] = str(ROOT / ".venv")
+    env["VIRTUAL_ENV"] = str(environment)
     env["PATH"] = str(interpreter.parent) + os.pathsep + env.get("PATH", "")
     if name == "opencode":
         executable = shutil.which("opencode", path=env["PATH"])
@@ -47,11 +51,11 @@ def main(argv: list[str] | None = None) -> int:
     elif name == "test":
         command = [str(interpreter), "-m", "pytest", *args]
     elif name == "uv":
-        bootstrap = ROOT / ".venv-setup" / suffix
+        bootstrap = Path(os.environ.get("SLR_SETUP_ENVIRONMENT", ROOT / ".venv-setup")) / suffix
         if not bootstrap.is_file():
             print("Local uv is missing. Rerun guided setup.", file=sys.stderr)
             return 1
-        env["UV_PROJECT_ENVIRONMENT"] = str(ROOT / ".venv")
+        env["UV_PROJECT_ENVIRONMENT"] = str(environment)
         env["UV_PYTHON"] = str(interpreter)
         command = [str(bootstrap), "-m", "uv", *args]
     else:

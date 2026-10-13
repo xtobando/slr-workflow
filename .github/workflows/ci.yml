@@ -98,3 +98,21 @@ jobs:
       - run: uv run --no-sync python -m slr_workbench --help
       - run: uv run --no-sync python scripts/validate_project.py
       - run: uv run --no-sync python -m pytest -q
+
+  container:
+    name: Container / Linux amd64
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Build and test image
+        run: docker compose build
+      - name: Exercise mounted project and persistent review
+        run: |
+          docker compose run --rm -T workbench test -q
+          docker compose run --rm -T --entrypoint opencode workbench --version
+          docker compose run --rm -T workbench init
+          docker compose run --rm -T workbench status
+          docker compose run --rm -T workbench audit

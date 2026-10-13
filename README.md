@@ -4,7 +4,29 @@ A local systematic literature review workspace: **OpenCode helps read and draft;
 Python validates evidence and stores an audit trail; you approve scientific decisions.**
 The example protocol is synthetic. Customize it before using real papers.
 
-[Install](#install) · [Connect a model](#connect-a-model) · [Read a PDF](#read-a-pdf-at-any-stage) · [Review workflow](#prepare-your-review) · [Troubleshooting](#troubleshooting)
+[Docker](#run-with-docker) · [Install](#install) · [Connect a model](#connect-a-model) · [Read a PDF](#read-a-pdf-at-any-stage) · [Review workflow](#prepare-your-review) · [Troubleshooting](#troubleshooting)
+
+## Run with Docker
+
+Docker packages Python, locked dependencies and OpenCode together. Install
+[Docker Desktop](https://www.docker.com/products/docker-desktop/) on Windows/macOS
+(or Docker Engine with Compose on Linux), start it, and open a terminal in the
+project folder containing `compose.yaml`. Use Linux containers on Windows.
+No host Python, uv or OpenCode installation is required.
+
+```sh
+docker compose build
+docker compose run --rm workbench cli --help
+docker compose run --rm workbench test -q
+docker compose run --rm workbench init
+docker compose run --rm workbench opencode --standalone
+```
+
+The same commands work in PowerShell. Inside OpenCode, use `/connect` and `/models`
+to select your provider. Scientific approvals remain interactive human operations.
+Review data stays in your project folder; backups and OpenCode state use persistent
+Docker volumes. See [the container guide](docs/containers.md) for human commands,
+PDFs, backups, updates, optional OCR/retrieval extras and device migration.
 
 ## Install
 
