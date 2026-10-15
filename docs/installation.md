@@ -309,8 +309,8 @@ uv run --no-sync python -m slr_workbench status
 Expect three source records, one exact DOI duplicate, and two records pending
 screening. Repeating the same import with identical content and run ID adds zero
 records. Real imports use recorded JSON/CSV exports, a configured source ID, the
-actual search query and a timestamp with timezone. Live academic API search is
-not implemented in this iteration.
+actual search query and a timestamp with timezone. For live API searches and verified imports, follow
+[Scientific search](scientific-search.md).
 
 Copy a retained record's `id` and `report_id` from `slr records`. Replace
 `RECORD_ID`, `REPORT_ID` and `PROPOSAL_ID` in subsequent commands with actual IDs.
@@ -540,7 +540,7 @@ Implemented: recorded manual imports, exact DOI deduplication, evidence validati
 draft submission and human review, full-text attachment, quality/extraction,
 study links, count/table exports, literal retrieval and audit.
 
-Live academic API clients, fuzzy merge/reversal, rendered PRISMA diagrams,
+Fuzzy merge/reversal, rendered PRISMA diagrams,
 updated-review carry-forward and statistical meta-analysis remain future work.
 An LLM is not an independent human reviewer. Keep missingness and disagreements
 explicit and validate the scientific interpretation of evidence.

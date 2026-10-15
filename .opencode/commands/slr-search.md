@@ -1,6 +1,5 @@
 ---
-description: Develop reproducible academic search strategies and import recorded JSON/CSV
-  search results with source, query, dates and completeness information.
+description: Search scientific databases and import verified search bundles or recorded exports with provenance and completeness information.
 agent: slr
 ---
 

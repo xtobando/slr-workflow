@@ -61,7 +61,10 @@
       "python* -m slr_workbench*link-study*": "deny",
       "slr unlink-study*": "deny",
       "python* -m slr_workbench*unlink-study*": "deny",
-      "python -m slr_workbench read-pdf*": "allow"
+      "python -m slr_workbench read-pdf*": "allow",
+      "python* -m slr_workbench*credentials*": "deny",
+      "slr credentials*": "deny",
+      "*workbench* credentials*": "deny"
     }
   }
 }

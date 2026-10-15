@@ -233,6 +233,21 @@
       "action": "shell",
       "resource": "python -m slr_workbench read-pdf*",
       "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "python* -m slr_workbench*credentials*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "slr credentials*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "*workbench* credentials*",
+      "effect": "deny"
     }
   ]
 }

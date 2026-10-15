@@ -75,3 +75,24 @@ and hash chains are not tamper-proof against a file owner who can replace the
 database and rewrite the whole chain. Reviewer identities are audit labels;
 OpenCode/terminal rules are workflow guardrails rather than secure authentication.
 No credentials are handled by this project's Python code.
+
+
+## Scientific API search
+
+`search/catalog.py` declares supported endpoints, query semantics and credential
+names. `credentials.py` reads environment variables or an external private file;
+credentials never enter protocol configuration or search artifacts. `http.py`
+bounds HTTPS responses/retries and rejects redirects. `adapters.py` builds native
+requests, parses provider pagination and normalizes metadata into `RecordInput`.
+
+`search/service.py` archives sanitized response pages, records and a versioned
+manifest under `data/searches/`. `search-literature` creates this evidence without
+changing review state. `import-search` checks its hashes and source mapping before
+calling the existing `ReviewService.import_records` transaction, preserving
+protocol approval, idempotency, provenance and truncation. DOI deduplication and
+all scientific decision gates remain unchanged. No database migration is needed.
+
+The OpenCode `slr-search` skill coordinates queries and imports; it does not receive
+or configure credentials. Public API availability is external to the deterministic
+core. Adapter tests use synthetic responses; institutional entitlements need a
+separate authenticated integration test. See [Scientific search](scientific-search.md).

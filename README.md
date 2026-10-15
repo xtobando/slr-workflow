@@ -4,7 +4,7 @@ A local systematic literature review workspace: **OpenCode helps read and draft;
 Python validates evidence and stores an audit trail; you approve scientific decisions.**
 The example protocol is synthetic. Customize it before using real papers.
 
-[Install](#install) · [Connect a model](#connect-a-model) · [Read a PDF](#read-a-pdf-at-any-stage) · [Review workflow](#prepare-your-review) · [Troubleshooting](#troubleshooting)
+[Install](#install) · [Search papers](#search-scientific-databases) · [Connect a model](#connect-a-model) · [Read a PDF](#read-a-pdf-at-any-stage) · [Review workflow](#prepare-your-review) · [Troubleshooting](#troubleshooting)
 
 ## Install
 
@@ -75,6 +75,32 @@ The underlying CLI remains available:
 # macOS/Linux
 .venv/bin/python -m slr_workbench --help
 ```
+
+## Search scientific databases
+
+After setup, search public sources directly from the workflow:
+
+```sh
+# macOS/Linux
+bash workbench.sh search-providers
+bash workbench.sh search-literature crossref --query "software testing" --max-results 100
+```
+
+```powershell
+# Windows
+.\workbench.ps1 search-providers
+.\workbench.ps1 search-literature crossref --query "software testing" --max-results 100
+```
+
+In OpenCode, use `/slr-search`. Public connectors cover DBLP, Crossref, OpenAlex
+and Semantic Scholar. IEEE Xplore, Scopus and Web of Science Starter accept
+optional user-configured API access when entitled; ACM uses manual exports.
+Searches save results and a reproducibility manifest without changing review state.
+Import the saved bundle after configuring and approving the source in your protocol.
+
+See the [scientific search tutorial](docs/scientific-search.md) for import commands,
+query limits, provider differences and external credential setup. No extra Python
+packages or subscriptions are needed to start with public sources.
 
 ## Connect a model
 
@@ -153,7 +179,7 @@ independent human reviewer.
 
 | Step | OpenCode skill / Python operation | Human responsibility |
 | --- | --- | --- |
-| Import recorded search exports | `/slr-search`, `import-records` | Check sources, queries and search dates |
+| Search databases and import results | `/slr-search`, `search-literature`, `import-search`, `import-records` | Check sources, queries and search dates |
 | Deduplicate | `/slr-deduplicate`, `deduplicate` | Inspect exact DOI matches |
 | Screen title/abstract | `/slr-screen RECORD_ID` | `review PROPOSAL_ID --reviewer REVIEWER_ID` |
 | Obtain full text | `/slr-retrieve`, `/slr-read-pdf PATH` | Verify identity, originals and text |
@@ -247,5 +273,5 @@ your configuration, project commit and export manifests in an appropriate archiv
 
 Current scope includes manual imports, exact DOI deduplication, human-reviewed
 drafts, attachments, quality/extraction, study links, exports, literal search and
-audit. Live academic APIs, fuzzy deduplication resolution, rendered PRISMA diagrams
+audit, plus scientific API search and verified result imports. Fuzzy deduplication resolution, rendered PRISMA diagrams
 and meta-analysis remain future extensions.

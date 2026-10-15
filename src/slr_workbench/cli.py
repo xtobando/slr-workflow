@@ -314,6 +314,13 @@ def retrieve(current: ReviewService, query: str, limit: int = 5) -> None:
     execute(lambda: semantic_retrieve(current, query, limit))
 
 
+def import_search_bundle(current: ReviewService, manifest_path: Path, source: str) -> None:
+    """Import a verified scientific search bundle through the existing protocol gates."""
+    from .search.service import import_search
+
+    execute(lambda: import_search(current, manifest_path, source))
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Keep the existing CLI names, positional arguments, options and defaults."""
     parser = argparse.ArgumentParser(
@@ -347,6 +354,30 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_argument("pdf", type=Path)
     sub.add_argument("--output-dir", type=Path)
     sub.set_defaults(handler=None)
+    from .search.catalog import PROVIDERS
+
+    sub = commands.add_parser(
+        "search-providers", help="List scientific databases and access options."
+    )
+    sub.set_defaults(handler=None)
+    sub = commands.add_parser(
+        "credentials", help="Manage external API credentials in a human terminal."
+    )
+    sub.add_argument("provider", choices=PROVIDERS)
+    sub.add_argument("action", choices=("status", "set", "delete"))
+    sub.add_argument("--field", default="api_key", choices=("api_key", "insttoken"))
+    sub.set_defaults(handler=None)
+    sub = commands.add_parser(
+        "search-literature", help="Search a scientific API and archive results without importing."
+    )
+    sub.add_argument("provider", choices=PROVIDERS)
+    sub.add_argument("--query", required=True)
+    sub.add_argument("--max-results", type=int, default=100)
+    sub.add_argument("--run-id")
+    sub.set_defaults(handler=None)
+    sub = command("import-search", import_search_bundle)
+    sub.add_argument("manifest_path", type=Path)
+    sub.add_argument("--source", required=True)
     command("init", initialize)
     sub = command("approve-protocol", approve_protocol)
     sub.add_argument("--reviewer", required=True)
@@ -425,6 +456,18 @@ def app(argv: Sequence[str] | None = None) -> None:
             execute(lambda: verify_backup(args["archive"]))
         else:
             execute(lambda: restore_backup(args["archive"], args["destination"]))
+        return
+    if selected in {"search-providers", "credentials", "search-literature"}:
+        from .search.catalog import catalog
+        from .search.credentials import configure_credentials
+        from .search.service import search
+
+        if selected == "search-providers":
+            execute(catalog)
+        elif selected == "credentials":
+            execute(lambda: configure_credentials(project, **args))
+        else:
+            execute(lambda: search(project, **args))
         return
     if selected == "read-pdf":
         from .pdf_reader import read_pdf

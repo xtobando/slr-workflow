@@ -44,6 +44,8 @@ already-used migration; create a new migration and an explicit upgrade path.
 This first iteration implements recorded manual imports, exact DOI deduplication,
 draft submission/review, full-text attachment, quality/extraction, study links,
 count/table exports, literal retrieval and audit. Docling and Chroma are optional
-adapters, requiring their dependencies/model downloads. Live academic API clients,
-fuzzy deduplication resolution, rendered PRISMA diagrams and meta-analysis are
+adapters, requiring their dependencies/model downloads. Scientific API clients and verified search-bundle imports are implemented; see
+`docs/scientific-search.md` for coverage and authentication limits. Never read API
+credential files or request secrets in chat; users configure credentials themselves.
+Fuzzy deduplication resolution, rendered PRISMA diagrams and meta-analysis are
 future extensions. Do not pretend those extensions are installed or tested.

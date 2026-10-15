@@ -62,6 +62,7 @@ def main(argv: list[str] | None = None) -> int:
             "init",
             "approve-protocol",
             "import-records",
+            "import-search",
             "deduplicate",
             "submit",
             "review",
