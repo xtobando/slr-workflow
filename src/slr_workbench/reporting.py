@@ -8,6 +8,7 @@ import json
 from collections import Counter
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 from .database import canonical_json, utc_now
 from .service import ReviewService
@@ -271,9 +272,15 @@ def export_snapshot(service: ReviewService, cutoff: int | None = None) -> Path:
     directory = (
         service.config.root
         / service.config.protocol.paths.exports
-        / (service.config.revision[:12] + "-" + str(result["event_sequence"]))
+        / (
+            service.config.revision[:12]
+            + "-"
+            + str(result["event_sequence"])
+            + "-"
+            + uuid4().hex[:12]
+        )
     )
-    directory.mkdir(parents=True, exist_ok=True)
+    directory.mkdir(parents=True, exist_ok=False)
     (directory / "prisma_counts.json").write_text(
         json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8"
     )

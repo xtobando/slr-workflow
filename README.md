@@ -4,7 +4,7 @@ A local systematic literature review workspace: **OpenCode helps read and draft;
 Python validates evidence and stores an audit trail; you approve scientific decisions.**
 The example protocol is synthetic. Customize it before using real papers.
 
-[Install](#install) · [Search papers](#search-scientific-databases) · [Connect a model](#connect-a-model) · [Read a PDF](#read-a-pdf-at-any-stage) · [Review workflow](#prepare-your-review) · [Troubleshooting](#troubleshooting)
+[Install](#install) · [Search papers](#search-scientific-databases) · [Connect a model](#connect-a-model) · [Read a PDF](#read-a-pdf-at-any-stage) · [Review workflow](#prepare-your-review) · [Pilot review](#review-the-pilot-and-pending-work) · [Troubleshooting](#troubleshooting)
 
 ## Install
 
@@ -93,9 +93,13 @@ bash workbench.sh search-literature crossref --query "software testing" --max-re
 ```
 
 In OpenCode, use `/slr-search`. Public connectors cover DBLP, Crossref, OpenAlex
-and Semantic Scholar. IEEE Xplore, Scopus and Web of Science Starter accept
+and Semantic Scholar, plus arXiv preprint search. IEEE Xplore, Scopus and Web of Science Starter accept
 optional user-configured API access when entitled; ACM uses manual exports.
-Searches save results and a reproducibility manifest without changing review state.
+Use `--dry-run` to plan a query before making requests. New searches preserve
+checkpointed pages and versioned manifests; `--resume --run-id RUN_ID` continues
+an unchanged v2 query. Requests are anonymous by default; key use and potential
+costs require explicit `--allow-credentials`. `search-coverage` reports truncation
+without summing overlapping query totals. Search results do not establish eligibility.
 Import the saved bundle after configuring and approving the source in your protocol.
 
 See the [scientific search tutorial](docs/scientific-search.md) for import commands,
@@ -197,6 +201,36 @@ For a complete practice run, use the [synthetic walkthrough](docs/installation.m
 in a separate checkout. For later sessions, start OpenCode and check `status`;
 do not reimport records merely to resume work.
 
+## Review the pilot and pending work
+
+Check existing proposals before creating more drafts. These commands display or
+export review work; you record each scientific decision in your own terminal.
+
+```sh
+# macOS/Linux; on Windows use .\workbench.ps1 instead of bash workbench.sh
+bash workbench.sh pending-review --limit 25
+bash workbench.sh review-sheet --reviewer REVIEWER_ID
+bash workbench.sh pilot-evaluation
+bash workbench.sh duplicate-candidates --limit 100
+bash workbench.sh search-coverage
+```
+
+Use a reviewer configured in your protocol. The numbered review sheet contains
+individual commands, evidence and actionable questions. Rerun after decisions to
+resume pending work. Pilot evaluation compares recommendations with recorded human
+judgments; it does not report agent self-agreement as scientific validation.
+Independent protocols get blind sheets until explicit human unblinding.
+
+Duplicate candidates are read-only hints; inspect source identity and report/study
+relationships yourself. No candidate automatically merges publications or links
+studies. Start with a small screening/full-text pilot, then size batches to actual
+reviewer capacity and ambiguity.
+
+See [pilot review and full-text checkpoints](docs/review-pilot.md),
+[duplicate candidates](docs/duplicate-candidates.md), and
+[project layout and compatibility](docs/project-layout.md). The starter includes no
+real review database or completed pilot; tests use separate synthetic fixtures.
+
 ## Optional tools
 
 - **VS Code:** open the project folder, install its recommended Python/Pylance/PDF
@@ -269,6 +303,7 @@ your configuration, project commit and export manifests in an appropriate archiv
 - [PDF reading and evidence](docs/pdf-reading.md)
 - [Customization](docs/customization.md) · [Draft contract](docs/draft-contract.md)
 - [Reproducibility](docs/reproducibility.md) · [Validation record](docs/testing.md)
+- [Project layout and compatibility](docs/project-layout.md) · [Improvement validation record](docs/improvement-report.md)
 - [Architecture](docs/architecture.md) · [PRISMA coverage](docs/prisma-checklist.md)
 
 Current scope includes manual imports, exact DOI deduplication, human-reviewed

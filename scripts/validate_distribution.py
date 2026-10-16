@@ -17,6 +17,16 @@ def main() -> None:
     if not migrations:
         raise ValueError("No source migrations found")
     with zipfile.ZipFile(wheels[0]) as wheel, tarfile.open(sources[0]) as source:
+        # The CLI moved from a module to a package; stale build output must not ship both.
+        if "slr_workbench/cli.py" in wheel.namelist():
+            raise ValueError("Wheel contains obsolete cli.py; rebuild from a clean build directory")
+        for member in (
+            "slr_workbench/cli/__init__.py",
+            "slr_workbench/cli/parser.py",
+            "slr_workbench/search/archive.py",
+        ):
+            if member not in wheel.namelist():
+                raise ValueError(f"Missing packaged implementation: {member}")
         for migration in migrations:
             member = f"slr_workbench/migrations/{migration.name}"
             if wheel.read(member) != migration.read_bytes():

@@ -8,8 +8,13 @@ description: Draft title/abstract eligibility recommendations for retained recor
 
 Read `../../../AGENTS.md` and `../../../docs/draft-contract.md` when producing structured drafts. Resolve executable commands from the project root, with the environment activated.
 
-1. Read `python -m slr_workbench workflow` and locate the record_screening role. Obtain retained record IDs from `python -m slr_workbench records`/`python -m slr_workbench status`.
-2. Run `python -m slr_workbench packet <record-screening-stage> <record-id> --output data/drafts/packet.json` and read it.
+1. Inspect `python -m slr_workbench pending-review` before creating drafts. Use
+   `review-sheet --reviewer <configured-id>` for an individual command handoff and
+   `pilot-evaluation` after human decisions. Follow `docs/review-pilot.md`; do not
+   unblind independent reviewers or create a large backlog. Begin with a manageable
+   batch (often at most 20–30), adjusted to actual reviewer capacity and ambiguity.
+   Read `python -m slr_workbench workflow` and locate the record_screening role. Obtain retained record IDs from `python -m slr_workbench records`/`python -m slr_workbench status`.
+2. Run `python -m slr_workbench packet <record-screening-stage> <record-id> --output data/packets/<stage>-<record-id>.json` and read it.
 3. Evaluate only applicable protocol criteria. Distinguish include, exclude and unclear. Missing abstract or uncertain relevance is not an automatic exclusion.
 4. Write a JSON draft matching schemas/draft.schema.json and the packet revision/target. Cite exact title/abstract quotations. For exclusion, list criterion IDs with the primary reason first.
 5. Record known provider/model/session information; use null for unavailable identifiers. Keep the rationale concise and observable.

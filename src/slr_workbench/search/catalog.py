@@ -12,9 +12,18 @@ class Provider:
     credentials: dict[str, str] = field(default_factory=dict)
     required: tuple[str, ...] = ()
     page_size: int = 100
+    minimum_interval: float = 0.2
 
 
 PROVIDERS = {
+    "arxiv": Provider(
+        "arXiv",
+        "https://export.arxiv.org/api/query",
+        "https://info.arxiv.org/help/api/user-manual.html",
+        "arXiv field/Boolean query, e.g. all:testing AND cat:cs.SE. Preprints, not peer-review guarantees. Offset paging sorted by submission date ascending.",
+        page_size=100,
+        minimum_interval=3.0,
+    ),
     "dblp": Provider(
         "DBLP",
         "https://dblp.org/search/publ/api",
@@ -33,6 +42,7 @@ PROVIDERS = {
         "https://help.openalex.org/api/authentication/",
         "OpenAlex search syntax. A free key is required for cursor paging beyond the first page.",
         {"api_key": "SLR_OPENALEX_API_KEY"},
+        minimum_interval=1.0,
     ),
     "semantic-scholar": Provider(
         "Semantic Scholar",
@@ -81,6 +91,8 @@ def catalog() -> list[dict]:
             "syntax": p.syntax,
             "credential_environment_variables": p.credentials,
             "required_credentials": list(p.required),
+            "minimum_request_interval_seconds": p.minimum_interval,
+            "credentials_require_explicit_opt_in": bool(p.credentials),
         }
         for key, p in PROVIDERS.items()
     ] + [

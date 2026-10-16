@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import argparse
 import json
 import sqlite3
 import sys
@@ -16,10 +15,11 @@ from rich.panel import Panel
 from rich.prompt import Confirm, Prompt
 from rich.text import Text
 
-from .config import load_configuration
-from .models import Draft
-from .reporting import export_snapshot, snapshot
-from .service import ReviewService
+from ..config import load_configuration
+from ..models import Draft
+from ..reporting import export_snapshot, snapshot
+from ..service import ReviewService
+from .parser import build_parser
 
 # Avoid Rich's legacy Win32/ctypes console detection while retaining its prompts.
 console = Console(legacy_windows=False, color_system=None)
@@ -260,21 +260,9 @@ def report(current: ReviewService, at_sequence: int | None = None) -> None:
 def audit(current: ReviewService) -> None:
     """Verify the event hash chain, SQLite integrity and archived document bytes."""
 
-    def action() -> dict[str, Any]:
-        import hashlib
+    from ..audit import audit_review
 
-        current.check_ready()
-        result = current.db.verify_chain()
-        with current.db.connect() as connection:
-            documents = connection.execute("SELECT * FROM documents").fetchall()
-        for document in documents:
-            path = current.config.root / document["local_path"]
-            if hashlib.sha256(path.read_bytes()).hexdigest() != document["sha256"]:
-                raise ValueError(f"Archived document changed: {document['id']}")
-        result["documents_checked"] = len(documents)
-        return result
-
-    execute(action)
+    execute(lambda: audit_review(current))
 
 
 def schema(current: ReviewService, output: Path = Path("schemas/draft.schema.json")) -> None:
@@ -295,146 +283,85 @@ def search_corpus(current: ReviewService, query: str, limit: int = 10) -> None:
 
 def convert(current: ReviewService, report_id: str, pdf: Path) -> None:
     """Convert a PDF through the optional Docling adapter, preserving source anchors."""
-    from .integrations import convert_document
+    from ..integrations import convert_document
 
     execute(lambda: convert_document(current, report_id, pdf))
 
 
 def index_corpus(current: ReviewService) -> None:
     """Build the optional local Chroma index from included publications."""
-    from .integrations import index_corpus as build_index
+    from ..integrations import index_corpus as build_index
 
     execute(lambda: build_index(current))
 
 
 def retrieve(current: ReviewService, query: str, limit: int = 5) -> None:
     """Retrieve semantic evidence using the optional Chroma adapter."""
-    from .integrations import retrieve as semantic_retrieve
+    from ..integrations import retrieve as semantic_retrieve
 
     execute(lambda: semantic_retrieve(current, query, limit))
 
 
 def import_search_bundle(current: ReviewService, manifest_path: Path, source: str) -> None:
     """Import a verified scientific search bundle through the existing protocol gates."""
-    from .search.service import import_search
+    from ..search.service import import_search
 
     execute(lambda: import_search(current, manifest_path, source))
 
 
-def build_parser() -> argparse.ArgumentParser:
-    """Keep the existing CLI names, positional arguments, options and defaults."""
-    parser = argparse.ArgumentParser(
-        prog="slr", description="Evidence-grounded SLR services for OpenCode.", allow_abbrev=False
-    )
-    parser.add_argument("--project", type=Path, default=Path("."), help="Project root")
-    commands = parser.add_subparsers(dest="command")
+def search_coverage(current: ReviewService, seeds: Path | None = None) -> None:
+    """Inspect per-run completeness and optional user-verified seed sensitivity."""
+    from ..coverage import search_coverage as coverage
 
-    def command(name: str, handler: Callable[..., None]) -> argparse.ArgumentParser:
-        sub = commands.add_parser(
-            name, help=handler.__doc__, description=handler.__doc__, allow_abbrev=False
-        )
-        sub.set_defaults(handler=handler)
-        return sub
+    execute(lambda: coverage(current, seeds))
 
-    sub = commands.add_parser("backup", help="Create a verified recovery archive.")
-    sub.add_argument("--destination", type=Path)
-    sub.set_defaults(handler=None)
-    sub = commands.add_parser("backup-verify", help="Verify a recovery archive.")
-    sub.add_argument("archive", type=Path)
-    sub.set_defaults(handler=None)
-    sub = commands.add_parser(
-        "restore", help="Restore into a new folder, never overwrite a review."
-    )
-    sub.add_argument("archive", type=Path)
-    sub.add_argument("destination", type=Path)
-    sub.set_defaults(handler=None)
-    sub = commands.add_parser(
-        "read-pdf", help="Read any PDF as Markdown without changing review state."
-    )
-    sub.add_argument("pdf", type=Path)
-    sub.add_argument("--output-dir", type=Path)
-    sub.set_defaults(handler=None)
-    from .search.catalog import PROVIDERS
 
-    sub = commands.add_parser(
-        "search-providers", help="List scientific databases and access options."
-    )
-    sub.set_defaults(handler=None)
-    sub = commands.add_parser(
-        "credentials", help="Manage external API credentials in a human terminal."
-    )
-    sub.add_argument("provider", choices=PROVIDERS)
-    sub.add_argument("action", choices=("status", "set", "delete"))
-    sub.add_argument("--field", default="api_key", choices=("api_key", "insttoken"))
-    sub.set_defaults(handler=None)
-    sub = commands.add_parser(
-        "search-literature", help="Search a scientific API and archive results without importing."
-    )
-    sub.add_argument("provider", choices=PROVIDERS)
-    sub.add_argument("--query", required=True)
-    sub.add_argument("--max-results", type=int, default=100)
-    sub.add_argument("--run-id")
-    sub.set_defaults(handler=None)
-    sub = command("import-search", import_search_bundle)
-    sub.add_argument("manifest_path", type=Path)
-    sub.add_argument("--source", required=True)
-    command("init", initialize)
-    sub = command("approve-protocol", approve_protocol)
-    sub.add_argument("--reviewer", required=True)
-    sub = command("import-records", import_records)
-    sub.add_argument("path", type=Path)
-    for name in ("run-id", "source", "query", "searched-at"):
-        sub.add_argument("--" + name, required=True)
-    sub.add_argument("--truncated", action=argparse.BooleanOptionalAction, default=False)
-    command("records", records)
-    command("deduplicate", deduplicate)
-    command("workflow", workflow)
-    sub = command("packet", packet)
-    sub.add_argument("stage")
-    sub.add_argument("entity_id")
-    sub.add_argument("--output", type=Path)
-    sub = command("submit", submit)
-    sub.add_argument("draft", type=Path)
-    sub = command("proposal", proposal)
-    sub.add_argument("proposal_id")
-    sub = command("review", review)
-    sub.add_argument("proposal_id")
-    sub.add_argument("--reviewer", required=True)
-    sub.add_argument("--decision-file", type=Path)
-    sub.add_argument("--adjudicate", action=argparse.BooleanOptionalAction, default=False)
-    sub = command("attach", attach)
-    sub.add_argument("report_id")
-    sub.add_argument("path", type=Path)
-    sub.add_argument("--kind", default="markdown")
-    sub = command("retrieval", retrieval)
-    sub.add_argument("report_id")
-    sub.add_argument("status")
-    sub.add_argument("--reviewer", required=True)
-    sub.add_argument("--reason", required=True)
-    for name, handler, extra in (
-        ("link-study", link_study, "label"),
-        ("unlink-study", unlink_study, "reason"),
-    ):
-        sub = command(name, handler)
-        sub.add_argument("report_id")
-        sub.add_argument("study_id")
-        sub.add_argument("--reviewer", required=True)
-        sub.add_argument("--" + extra, required=True)
-    for name, handler in (("status", status), ("report", report)):
-        sub = command(name, handler)
-        sub.add_argument("--at-sequence", type=int)
-    command("audit", audit)
-    sub = command("schema", schema)
-    sub.add_argument("--output", type=Path, default=Path("schemas/draft.schema.json"))
-    for name, handler, limit in (("search-corpus", search_corpus, 10), ("retrieve", retrieve, 5)):
-        sub = command(name, handler)
-        sub.add_argument("query")
-        sub.add_argument("--limit", type=int, default=limit)
-    sub = command("convert", convert)
-    sub.add_argument("report_id")
-    sub.add_argument("pdf", type=Path)
-    command("index-corpus", index_corpus)
-    return parser
+def pending_review(current: ReviewService, **filters: Any) -> None:
+    """List pending recommendations and human-review blockers without recording decisions."""
+    from ..review_support import inspect_queue
+
+    if filters.get("unblind"):
+        execute(require_terminal)
+    execute(lambda: inspect_queue(current, **filters))
+
+
+def review_sheet(current: ReviewService, **filters: Any) -> None:
+    """Generate a numbered review package with individual human command handoffs."""
+    from ..review_support import export_review_package
+
+    if filters.get("unblind"):
+        execute(require_terminal)
+    execute(lambda: {"package_directory": export_review_package(current, **filters)})
+
+
+def pilot_evaluation(current: ReviewService, **filters: Any) -> None:
+    """Compare recorded human judgments with proposals while retaining uncertainty."""
+    from ..review_support import evaluate_pilot
+
+    if filters.get("unblind"):
+        execute(require_terminal)
+    execute(lambda: evaluate_pilot(current, **filters))
+
+
+def duplicate_candidates(
+    current: ReviewService,
+    limit: int = 100,
+    max_comparisons: int = 50000,
+    title_threshold: float = 0.9,
+    output: Path | None = None,
+) -> None:
+    """Present uncertain bibliographic identities; never merge records or link studies."""
+    from ..duplicate_candidates import candidates, export_candidates
+
+    options = {
+        "limit": limit,
+        "max_comparisons": max_comparisons,
+        "title_threshold": title_threshold,
+    }
+    if output:
+        execute(lambda: export_candidates(current, current.config.root / output, **options))
+    else:
+        execute(lambda: candidates(current, **options))
 
 
 def app(argv: Sequence[str] | None = None) -> None:
@@ -448,7 +375,7 @@ def app(argv: Sequence[str] | None = None) -> None:
     handler = args.pop("handler")
     project = args.pop("project")
     if selected in {"backup", "backup-verify", "restore"}:
-        from .backups import create_backup, restore_backup, verify_backup
+        from ..backups import create_backup, restore_backup, verify_backup
 
         if selected == "backup":
             execute(lambda: create_backup(project, args["destination"]))
@@ -458,9 +385,9 @@ def app(argv: Sequence[str] | None = None) -> None:
             execute(lambda: restore_backup(args["archive"], args["destination"]))
         return
     if selected in {"search-providers", "credentials", "search-literature"}:
-        from .search.catalog import catalog
-        from .search.credentials import configure_credentials
-        from .search.service import search
+        from ..search.catalog import catalog
+        from ..search.credentials import configure_credentials
+        from ..search.service import search
 
         if selected == "search-providers":
             execute(catalog)
@@ -470,7 +397,7 @@ def app(argv: Sequence[str] | None = None) -> None:
             execute(lambda: search(project, **args))
         return
     if selected == "read-pdf":
-        from .pdf_reader import read_pdf
+        from ..pdf_reader import read_pdf
 
         execute(lambda: read_pdf(args["pdf"], args["output_dir"] or project / "data" / "reading"))
         return

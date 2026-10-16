@@ -74,7 +74,8 @@ or semantic entailment. RAG citations need human interpretation. Local triggers
 and hash chains are not tamper-proof against a file owner who can replace the
 database and rewrite the whole chain. Reviewer identities are audit labels;
 OpenCode/terminal rules are workflow guardrails rather than secure authentication.
-No credentials are handled by this project's Python code.
+LLM account tokens remain in OpenCode. Optional scientific API keys are handled
+only by the external credential adapter and explicitly authorized search requests.
 
 
 ## Scientific API search
@@ -96,3 +97,24 @@ The OpenCode `slr-search` skill coordinates queries and imports; it does not rec
 or configure credentials. Public API availability is external to the deterministic
 core. Adapter tests use synthetic responses; institutional entitlements need a
 separate authenticated integration test. See [Scientific search](scientific-search.md).
+
+
+## Read-only review support
+
+`review_support.py` reconstructs current proposal targets, latest reviewer judgments,
+consensus and prerequisites in one read-only SQLite transaction. It emits numbered
+review packages and pilot comparisons without a second decision service. Independent
+protocols hide recommendations by default. The existing interactive `review` command
+with a separately authored decision file remains the human approval path.
+
+`duplicate_candidates.py` groups observable bibliographic hints by existing report
+pair. It preserves metadata differences, identifies comparison truncation and never
+merges records or creates study links. `coverage.py` separates archived request
+completeness, imports and optional identifier recall against user-verified seeds;
+provider totals are not added together. `audit.py` verifies archived import bytes in
+addition to the history chain, SQLite integrity and document hashes.
+
+The public CLI module is now `cli/__init__.py`, with command registration in
+`cli/parser.py`. Python entry points and interactive guards retain their public
+paths. No schema or historical artifact migration is required. See
+[project layout](project-layout.md) and [pilot workflow](review-pilot.md).

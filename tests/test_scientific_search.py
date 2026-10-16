@@ -217,7 +217,7 @@ def test_failed_page_preserves_partial_without_credential(tmp_path, monkeypatch)
 
     root = tmp_path / "project"
     with pytest.raises(ValueError, match="Nothing was imported") as error:
-        search(root, "ieee", "testing", 5, "failed-run", fetch)
+        search(root, "ieee", "testing", 5, "failed-run", fetch, allow_credentials=True)
     bundle = root / "data/searches/failed-run"
     assert "private-key-do-not-persist" not in str(error.value)
     for path in bundle.iterdir():
@@ -251,7 +251,7 @@ def test_import_integrity_and_existing_protocol_gate(review, tmp_path):
     first = import_search(review, manifest, "demo-database")
     second = import_search(review, manifest, "demo-database")
     assert first and second
-    records = manifest.parent / "records.json"
+    records = manifest.parent / json.loads(manifest.read_text()).get("records_file", "records.json")
     records.write_text("[]")
     with pytest.raises(ValueError, match="checksum"):
         import_search(review, manifest, "demo-database")

@@ -32,14 +32,21 @@ def items(value: Any) -> list:
 def request(provider: str, query: str, cursor: Any, size: int, keys: dict) -> tuple[dict, dict]:
     """Return transport parameters and headers; never persist these with credentials."""
     key = keys.get("api_key")
+    if provider == "arxiv":
+        return {
+            "search_query": query,
+            "start": cursor or 0,
+            "max_results": size,
+            "sortBy": "submittedDate",
+            "sortOrder": "ascending",
+        }, {}
     if provider == "dblp":
         return {"q": query, "format": "json", "h": size, "f": cursor or 0, "c": 0}, {}
     if provider == "crossref":
         return {"query.bibliographic": query, "rows": size, "cursor": cursor or "*"}, {}
     if provider == "openalex":
-        params = {"search": query, "per_page": size}
-        if key:
-            params["cursor"] = cursor or "*"
+        # Anonymous cursor=* is supported and preserves the next cursor for a later resume.
+        params = {"search": query, "per_page": size, "cursor": cursor or "*"}
         return params, {"Authorization": f"Bearer {key}"} if key else {}
     if provider == "semantic-scholar":
         params = {"query": query, "fields": "title,abstract,year,authors,externalIds,url,venue"}
@@ -66,7 +73,12 @@ def request(provider: str, query: str, cursor: Any, size: int, keys: dict) -> tu
 
 def page(provider: str, data: dict, cursor: Any, size: int) -> tuple[list[dict], int, object]:
     """Return items, provider total/estimate and next cursor (None at exhaustion)."""
-    if provider == "dblp":
+    if provider == "arxiv":
+        rows, total = data["entries"], int(data["total_results"])
+        if int(data["start_index"]) != (cursor or 0):
+            raise ValueError("arXiv returned an unexpected start offset")
+        following = (cursor or 0) + len(rows)
+    elif provider == "dblp":
         block = data["result"]["hits"]
         rows, total = items(block.get("hit")), int(block["@total"])
         following = (cursor or 0) + len(rows)
@@ -99,7 +111,11 @@ def page(provider: str, data: dict, cursor: Any, size: int) -> tuple[list[dict],
 def normalize(provider: str, raw: dict) -> dict:
     """Missing fields remain missing; no metadata or abstracts are inferred."""
     abstract, authors, doi, year, url = "", [], None, None, None
-    if provider == "dblp":
+    if provider == "arxiv":
+        identity, title = raw["id"], raw["title"]
+        abstract, authors = raw.get("summary") or "", raw.get("authors", [])
+        doi, year, url = raw.get("doi"), (raw.get("published") or "")[:4], raw["id"]
+    elif provider == "dblp":
         row = raw["info"]
         identity, title = row.get("key") or raw.get("@id"), row["title"]
         authors = [
@@ -169,6 +185,21 @@ def normalize(provider: str, raw: dict) -> dict:
     record["metadata"]["missing_fields"] = [
         name for name in ("abstract", "authors", "doi", "year", "url") if not record[name]
     ]
+    if provider == "arxiv":
+        record["metadata"].update(
+            {
+                "publication_status": "preprint; peer-review status not inferred",
+                "arxiv_version_id": str(identity),
+                "arxiv_base_id": str(identity)
+                .removeprefix("https://arxiv.org/abs/")
+                .removeprefix("http://arxiv.org/abs/")
+                .rsplit("v", 1)[0]
+                if str(identity).rsplit("v", 1)[-1].isdigit()
+                else str(identity),
+                "updated": raw.get("updated"),
+                "categories": raw.get("categories", []),
+            }
+        )
     if provider == "scopus":
         record["metadata"]["authors_scope"] = "STANDARD view may supply only the first author"
     return RecordInput.model_validate(record).model_dump()

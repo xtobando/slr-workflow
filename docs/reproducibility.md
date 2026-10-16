@@ -41,7 +41,7 @@ uv run --no-sync python -c "import sys; print(sys.version); print(sys.executable
 
 Ruff is optional locally; omit `--extra lint` and its command if its executable
 is blocked, and use CI linting. Python 3.11 remains the supported minimum.
-CI covers Python 3.11/3.12 on Linux, macOS and Windows, plus the signed python.org
+CI is configured for Python 3.11/3.12/3.13 on Linux, macOS and Windows, plus the signed python.org
 3.12.10 Windows installer. Hosted results are only known after those jobs run;
 they do not guarantee compatibility with every Defender policy.
 The tests create temporary synthetic projects and never approve or modify your
@@ -120,3 +120,13 @@ databases, generated packages and caches. It cannot remove files already tracked
 by Git: inspect the staged paths before committing. Only synthetic examples
 belong in the public starter repository. The project uses the [MIT License](../LICENSE),
 preserved from the GitHub repository's initial commit.
+
+
+## Maintenance and pilot safeguards
+
+The [improvement validation record](improvement-report.md) distinguishes software
+checks from scientific progress. [Project layout and compatibility](project-layout.md)
+describes the CLI module split, append-only generated exports and v1/v2 search
+archive compatibility. Use `search-coverage`, `pending-review`, `pilot-evaluation`
+and `audit` to establish actual state each session. Passing tests does not validate
+a paper's claims, scientific eligibility, independence or overall search coverage.

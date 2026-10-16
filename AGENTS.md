@@ -47,5 +47,8 @@ count/table exports, literal retrieval and audit. Docling and Chroma are optiona
 adapters, requiring their dependencies/model downloads. Scientific API clients and verified search-bundle imports are implemented; see
 `docs/scientific-search.md` for coverage and authentication limits. Never read API
 credential files or request secrets in chat; users configure credentials themselves.
-Fuzzy deduplication resolution, rendered PRISMA diagrams and meta-analysis are
+Read-only duplicate/report-family candidates and human review packages are available.
+Searches support explicit planning and v2 checkpoints; never silently refine a query
+or enable credential use/possible charges without user authorization. No actual pilot
+review is bundled with the starter. Fuzzy deduplication resolution, rendered PRISMA diagrams and meta-analysis are
 future extensions. Do not pretend those extensions are installed or tested.
